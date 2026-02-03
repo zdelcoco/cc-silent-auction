@@ -4,7 +4,7 @@ import ReactDOM from "react-dom";
 import { itemStatus } from "../utils/itemStatus";
 import { formatField, formatMoney } from "../utils/formatString";
 import { updateProfile } from "firebase/auth";
-import { doc, setDoc, updateDoc } from "firebase/firestore";
+import { doc, setDoc, updateDoc, getDoc } from "firebase/firestore";
 import { auth, db } from "../firebase/config";
 import { ModalsContext } from "../contexts/ModalsContext";
 import { ModalTypes } from "../utils/modalTypes";
@@ -46,13 +46,32 @@ Modal.propTypes = {
 const ItemModal = () => {
   const { activeItem, openModal, closeModal } = useContext(ModalsContext);
   const [secondaryImageSrc, setSecondaryImageSrc] = useState("");
-  const minIncrease = 1;
-  const maxIncrease = 10;
-  const [bid, setBid] = useState();
+  const [bid, setBid] = useState("");
   const [valid, setValid] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState("");
-  const [minBid, setMinBid] = useState("-.--");
+  const [currentAmount, setCurrentAmount] = useState(0);
+  const [lastBidder, setLastBidder] = useState("");
+  const [numBids, setNumBids] = useState(0);
+  const [isEnded, setIsEnded] = useState(false);
+
+  const minIncrease = activeItem.minimumIncrease || 1;
+  const maxIncrease = activeItem.maximumIncrease || 10;
+
+  useEffect(() => {
+    if (!activeItem.endTime) return;
+    const checkEnded = () => {
+      const now = Date.now();
+      const remaining = activeItem.endTime - now;
+      if (remaining <= 0) {
+        setIsEnded(true);
+      } else {
+        setIsEnded(false);
+        requestAnimationFrame(checkEnded);
+      }
+    };
+    checkEnded();
+  }, [activeItem.endTime]);
 
   useEffect(() => {
     if (activeItem.secondaryImage === undefined) return;
@@ -63,18 +82,30 @@ const ItemModal = () => {
 
   useEffect(() => {
     const status = itemStatus(activeItem);
-    setMinBid(formatMoney(activeItem.currency, status.amount + minIncrease));
+    setCurrentAmount(status.amount);
+    setNumBids(status.bids);
+    if (status.winner) {
+      getDoc(doc(db, "users", status.winner)).then((user) => {
+        setLastBidder(user.get("name"));
+      });
+    } else {
+      setLastBidder("");
+    }
   }, [activeItem]);
+
+  const minBidAmount = currentAmount + minIncrease;
+  const maxBidAmount = currentAmount + maxIncrease;
 
   const delayedClose = () => {
     setTimeout(() => {
       closeModal();
       setFeedback("");
       setValid("");
+      setBid("");
     }, 1000);
   };
 
-  const handleSubmitBid = () => {
+  const submitBid = (amount) => {
     // Get bid submission time as early as possible
     let nowTime = new Date().getTime();
     // Disable bid submission while we submit the current request
@@ -98,26 +129,28 @@ const ItemModal = () => {
       }, 1000)
       return;
     }
-    // Ensure input is a monetary value
-    if (!/^\d+(\.\d{1,2})?$/.test(bid)) {
-      setFeedback("Please enter a valid monetary amount!");
-      setValid("is-invalid");
-      setIsSubmitting(false);
-      return;
-    }
-    // Get values needed to place bid
-    const amount = parseFloat(bid);
+    // Get current status for validation
     const status = itemStatus(activeItem);
+    const currentMin = status.amount + minIncrease;
+    const currentMax = status.amount + maxIncrease;
     // Ensure input is large enough
-    if (amount < status.amount + minIncrease) {
-      setFeedback("You did not bid enough!");
+    if (amount < currentMin) {
+      setFeedback(`Minimum bid is ${formatMoney(activeItem.currency, currentMin)}`);
       setValid("is-invalid");
       setIsSubmitting(false);
       return;
     }
     // Ensure input is small enough
-    if (amount > status.amount + maxIncrease) {
-      setFeedback(`For the demo you can only increase the price up to ${activeItem.currency}${maxIncrease} per bid.`);
+    if (amount > currentMax) {
+      setFeedback(`Maximum bid is ${formatMoney(activeItem.currency, currentMax)}`);
+      setValid("is-invalid");
+      setIsSubmitting(false);
+      return;
+    }
+    // Ensure bid is in correct increment
+    const increase = amount - status.amount;
+    if (increase % minIncrease !== 0) {
+      setFeedback(`Bid must be in increments of ${formatMoney(activeItem.currency, minIncrease)}`);
       setValid("is-invalid");
       setIsSubmitting(false);
       return;
@@ -129,15 +162,32 @@ const ItemModal = () => {
         uid: auth.currentUser.uid,
       },
     });
-    console.debug("handleSubmidBid() write to auction/items");
+    console.debug("submitBid() write to auction/items");
     setValid("is-valid");
     delayedClose();
+  };
+
+  const handleSubmitBid = () => {
+    // Ensure input is a monetary value
+    if (!/^\d+(\.\d{1,2})?$/.test(bid)) {
+      setFeedback("Please enter a valid monetary amount!");
+      setValid("is-invalid");
+      setIsSubmitting(false);
+      return;
+    }
+    submitBid(parseFloat(bid));
+  };
+
+  const handleQuickBid = (amount) => {
+    setBid(amount.toString());
+    submitBid(amount);
   };
 
   const handleChange = (e) => {
     setBid(e.target.value);
     setIsSubmitting(false);
     setValid("");
+    setFeedback("");
   };
 
   const handleKeyDown = (e) => {
@@ -149,29 +199,68 @@ const ItemModal = () => {
   return (
     <Modal type={ModalTypes.ITEM} title={activeItem.title}>
       <div className="modal-body">
-        <p>{activeItem.detail}</p>
         <img src={secondaryImageSrc} className="img-fluid" alt={activeItem.title} />
+        <p className="mt-3">{activeItem.detail}</p>
       </div>
-      <div className="modal-footer justify-content-start">
-        <div className="input-group mb-2">
-          <span className="input-group-text">{activeItem.currency}</span>
-          <input
-            className={`form-control ${valid}`}
-            onChange={handleChange}
-            onKeyDown={handleKeyDown}
-            />
-          <button
-            type="submit"
-            className="btn btn-primary"
-            onClick={handleSubmitBid}
-            disabled={isSubmitting}
-            >
-            Submit bid
-          </button>
-          <div className="invalid-feedback">{feedback}</div>
-        </div>
-        <label className="form-label">Enter {minBid} or more</label>
-        <p className="text-muted">(This is just a demo, you&apos;re not bidding real money)</p>
+      <div className="modal-footer flex-column align-items-stretch">
+        {isEnded ? (
+          <div className="text-center py-3">
+            <p className="mb-2"><strong>Bidding closed!</strong></p>
+            {lastBidder ? (
+              <p className="mb-0">Congratulations to <strong>{lastBidder}</strong> with the winning bid of <strong>{formatMoney(activeItem.currency, currentAmount)}</strong>!</p>
+            ) : (
+              <p className="mb-0">No bids were placed on this item.</p>
+            )}
+          </div>
+        ) : (
+          <>
+            <div className="d-flex justify-content-between align-items-center mb-2">
+              {lastBidder ? (
+                <p className="mb-0"><strong>{lastBidder}</strong> last bid <strong>{formatMoney(activeItem.currency, currentAmount)}</strong></p>
+              ) : (
+                <p className="mb-0">Starting price: <strong>{formatMoney(activeItem.currency, currentAmount)}</strong></p>
+              )}
+              <small className="text-muted">Bid in {formatMoney(activeItem.currency, minIncrease)} increments</small>
+            </div>
+            <div className="d-flex gap-2 mb-3">
+              <button
+                type="button"
+                className="btn btn-outline-primary flex-grow-1"
+                onClick={() => handleQuickBid(minBidAmount)}
+                disabled={isSubmitting}
+              >
+                Min Bid - {formatMoney(activeItem.currency, minBidAmount)}
+              </button>
+              <button
+                type="button"
+                className="btn btn-outline-primary flex-grow-1"
+                onClick={() => handleQuickBid(maxBidAmount)}
+                disabled={isSubmitting}
+              >
+                Max Bid - {formatMoney(activeItem.currency, maxBidAmount)}
+              </button>
+            </div>
+            <div className="input-group mb-2">
+              <span className="input-group-text">{activeItem.currency}</span>
+              <input
+                className={`form-control ${valid}`}
+                value={bid}
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+                placeholder="Or enter custom amount"
+              />
+              <button
+                type="submit"
+                className="btn btn-primary"
+                onClick={handleSubmitBid}
+                disabled={isSubmitting}
+              >
+                Bid
+              </button>
+              <div className="invalid-feedback">{feedback}</div>
+            </div>
+          </>
+        )}
       </div>
     </Modal>
   );
