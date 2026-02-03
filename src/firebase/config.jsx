@@ -5,10 +5,10 @@ import { getAuth } from "firebase/auth";
 // Web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyCAYOYDuMKGGjTSJL5uDzG5hjQ6y_vYPiI",
-  authDomain: "auction-website-b12fc.firebaseapp.com",
-  databaseURL: "https://auction-website-b12fc.firebaseio.com",
-  projectId: "auction-website-b12fc",
-  storageBucket: "auction-website-b12fc.appspot.com",
+  authDomain: "cc-silent-auction-b12fc.firebaseapp.com",
+  databaseURL: "https://cc-silent-auction-b12fc.firebaseio.com",
+  projectId: "cc-silent-auction-b12fc",
+  storageBucket: "cc-silent-auction-b12fc.appspot.com",
   messagingSenderId: "791747024664",
   appId: "1:791747024664:web:215a222a81c6d0c2aeb06d",
 };

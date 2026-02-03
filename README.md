@@ -1,22 +1,25 @@
 # Auction Website
 
+This is a fork of hmellor's repo: https://github.com/hmellor/cc-silent-auction -- 99% of credit goes to him, I just made minor changes for our specific use case.
+
 In this repo you will find the code and instructions to host an auction website for free using GitHub Pages and Firebase anonymous authentication & databases.
 
 This is a project I originally worked on for a charity event and I've been improving it in my spare time ever since. Contributions and suggestions are welcome!
 
 ## Table of contents
 
-- [Table of contents](#table-of-contents)
-- [Features](#features)
-- [Setup](#setup)
-  - [Environment](#environment)
-  - [Items](#items)
-  - [Firebase](#firebase)
-    - [Creating a project](#creating-a-project)
-    - [Authentication](#authentication)
-    - [Firestore Database](#firestore-database)
-  - [Creating an admin account](#creating-an-admin-account)
-  - [Initialising the auction](#initialising-the-auction)
+- [Auction Website](#cc-silent-auction)
+  - [Table of contents](#table-of-contents)
+  - [Features](#features)
+  - [Setup](#setup)
+    - [Environment](#environment)
+    - [Items](#items)
+    - [Firebase](#firebase)
+      - [Creating a project](#creating-a-project)
+      - [Authentication](#authentication)
+      - [Firestore Database](#firestore-database)
+    - [Creating an admin account](#creating-an-admin-account)
+    - [Initialising the auction](#initialising-the-auction)
 
 ## Features
 
@@ -189,6 +192,6 @@ The `Admin` page provides:
 
 If the website is hosted:
 - locally, then the item(s) will be updated to match the current contents of [public\items.yml](public\items.yml).
-- on GitHub Pages, then the item(s) will be updated to match the current contents of (your equivalent of) https://hmellor.github.io/auction-website/items.yml (i.e. whatever you last pushed and deployed to GitHub Pages).
+- on GitHub Pages, then the item(s) will be updated to match the current contents of (your equivalent of) https://hmellor.github.io/cc-silent-auction/items.yml (i.e. whatever you last pushed and deployed to GitHub Pages).
 
 > _N.B. The loading of the item data, which happens for both the update **and** delete buttons, can cause the buttons to be a little slow to react._
