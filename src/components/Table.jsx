@@ -13,7 +13,7 @@ const Table = () => {
         <th>Title</th>
         <th>Price</th>
         <th>Bids</th>
-        <th>Winning</th>
+        <th>Winner / Contact</th>
         <th>Time Left</th>
         <th>Actions</th>
     </tr>

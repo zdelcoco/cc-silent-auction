@@ -268,16 +268,35 @@ const ItemModal = () => {
 
 const SignUpModal = () => {
   const { closeModal, setSignedInUser } = useContext(ModalsContext);
-  const [username, setUsername] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [valid, setValid] = useState("");
+  const [error, setError] = useState("");
 
   const handleSignUp = async () => {
+    // Validate required fields
+    if (!fullName.trim()) {
+      setError("Please enter your full name");
+      return;
+    }
+    if (!email.trim() && !phone.trim()) {
+      setError("Please enter at least an email or phone number");
+      return;
+    }
+
     const user = auth.currentUser;
-    await updateProfile(user, { displayName: username });
-    setDoc(doc(db, "users", user.uid), { name: username, admin: "" });
+    await updateProfile(user, { displayName: fullName });
+    setDoc(doc(db, "users", user.uid), {
+      name: fullName,
+      email: email.trim(),
+      phone: phone.trim(),
+      admin: ""
+    });
     console.debug(`signUp() write to users/${user.uid}`);
-    setSignedInUser(username);
+    setSignedInUser(fullName);
     setValid("is-valid");
+    setError("");
     setTimeout(() => {
       closeModal();
       setValid("");
@@ -294,23 +313,48 @@ const SignUpModal = () => {
     <Modal type={ModalTypes.SIGN_UP} title="Sign up for CC Silent Auction">
       <div className="modal-body">
         <p>
-          We use anonymous authentication provided by Google. Your account is
-          attached to your device signature.
+          Please enter your contact information so we can reach you if you win!
         </p>
-        <p>The username just lets us know who&apos;s bidding!</p>
         <form onSubmit={(e) => e.preventDefault()}>
           <div className="form-floating mb-3">
             <input
               autoFocus
-              id="username-input"
-              type="username"
+              id="name-input"
+              type="text"
               className={`form-control ${valid}`}
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
               onKeyDown={handleKeyDown}
+              placeholder="Full Name"
             />
-            <label>Username</label>
+            <label>Full Name *</label>
           </div>
+          <div className="form-floating mb-3">
+            <input
+              id="email-input"
+              type="email"
+              className={`form-control ${valid}`}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Email"
+            />
+            <label>Email</label>
+          </div>
+          <div className="form-floating mb-3">
+            <input
+              id="phone-input"
+              type="tel"
+              className={`form-control ${valid}`}
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Phone"
+            />
+            <label>Phone</label>
+          </div>
+          <small className="text-muted">* Required. Please provide at least an email or phone number.</small>
+          {error && <div className="text-danger mt-2">{error}</div>}
         </form>
       </div>
       <div className="modal-footer">

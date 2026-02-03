@@ -10,6 +10,8 @@ export const Row = ({ item }) => {
   const [amount, setAmount] = useState(item.startingPrice);
   const [bids, setBids] = useState(0);
   const [winner, setWinner] = useState("");
+  const [winnerEmail, setWinnerEmail] = useState("");
+  const [winnerPhone, setWinnerPhone] = useState("");
   const [timeLeft, setTimeLeft] = useState("");
 
   useEffect(() => {
@@ -18,10 +20,14 @@ export const Row = ({ item }) => {
     setBids(status.bids);
     if (status.winner) {
       getDoc(doc(db, "users", status.winner)).then((user) => {
-        setWinner(user.get("name"));
+        setWinner(user.get("name") || "");
+        setWinnerEmail(user.get("email") || "");
+        setWinnerPhone(user.get("phone") || "");
       });
     } else {
       setWinner("");
+      setWinnerEmail("");
+      setWinnerPhone("");
     }
   }, [item]);
 
@@ -47,7 +53,16 @@ export const Row = ({ item }) => {
       <td>{item.title}</td>
       <td>{amount}</td>
       <td>{bids}</td>
-      <td>{winner}</td>
+      <td>
+        {winner && (
+          <>
+            <div>{winner}</div>
+            {winnerEmail && <small className="text-muted">{winnerEmail}</small>}
+            {winnerEmail && winnerPhone && <br />}
+            {winnerPhone && <small className="text-muted">{winnerPhone}</small>}
+          </>
+        )}
+      </td>
       <td>{timeLeft}</td>
       <td>
         <button

@@ -7,13 +7,13 @@ const Footer = () => {
   return (
     <footer className="container d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
       <div className="col-md-4 d-flex align-items-center">
-        <span className="text-muted">© {year} Harry Mellor | Adapted for CC by Zachary Delcoco</span>
+        <span className="text-muted">© {year} Zachary Delcoco</span>
       </div>
       <ul className="nav col-md-4 justify-content-end list-unstyled d-flex">
         <li className="ms-3">
           <a
             className="bi bi-github text-muted"
-            href="https://github.com/HMellor/"
+            href="https://github.com/zdelcoco/"
             width="24"
             height="24"
           >
