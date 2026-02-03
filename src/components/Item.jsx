@@ -46,7 +46,7 @@ export const Item = ({ item }) => {
   }, [item.endTime]);
 
   useEffect(() => {
-    import(`../assets/${item.primaryImage}.png`).then((src) => {
+    import(`../assets/${item.primaryImage}.jpg`).then((src) => {
       setPrimaryImageSrc(src.default)
     })
   }, [item.primaryImage])
