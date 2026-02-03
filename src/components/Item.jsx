@@ -64,7 +64,10 @@ export const Item = ({ item }) => {
           <h6 className="card-subtitle mb-2 text-body-secondary">{item.subtitle}</h6>
         </div>
         <ul className="list-group list-group-flush">
-          <li className="list-group-item"><strong>{amount}</strong>{winner && ` · ${winner}`}</li>
+          <li className="list-group-item d-flex justify-content-between align-items-center">
+            <strong>{amount}</strong>
+            {winner && <small className="text-muted">Leading: {winner}</small>}
+          </li>
           <li className="list-group-item">{bids} bids · {timeLeft}</li>
         </ul>
       </div>
