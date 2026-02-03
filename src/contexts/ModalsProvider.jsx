@@ -6,6 +6,7 @@ import { ModalsContext } from "./ModalsContext";
 export const ModalsProvider = ({ children }) => {
   const [activeItem, setActiveItem] = useState({});
   const [currentModal, setCurrentModal] = useState(ModalTypes.NONE);
+  const [signedInUser, setSignedInUser] = useState(null);
 
   const openModal = (modalType, item = {}) => {
     setActiveItem(item);
@@ -19,7 +20,7 @@ export const ModalsProvider = ({ children }) => {
 
   return (
     <ModalsContext.Provider
-      value={{ activeItem, currentModal, openModal, closeModal }}
+      value={{ activeItem, currentModal, openModal, closeModal, signedInUser, setSignedInUser }}
     >
       {children}
     </ModalsContext.Provider>

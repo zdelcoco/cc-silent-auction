@@ -7,7 +7,7 @@ import { ModalsContext } from '../contexts/ModalsContext';
 import { ModalTypes } from '../utils/modalTypes';
 
 const Navbar = ({ admin }) => {
-  const openModal = useContext(ModalsContext).openModal;
+  const { openModal, signedInUser } = useContext(ModalsContext);
   const navigate = useNavigate();
   const [user, setUser] = useState('');
   const [authButtonText, setAuthButtonText] = useState('Sign up');
@@ -24,7 +24,14 @@ const Navbar = ({ admin }) => {
 
     // Clean up the onAuthStateChanged listener when the component unmounts
     return () => unsubscribe();
-  }, [user.displayName]);
+  }, []);
+
+  useEffect(() => {
+    if (signedInUser) {
+      setUser(`Hi ${signedInUser}`);
+      setAuthButtonText('Sign out');
+    }
+  }, [signedInUser]);
 
   const handleAdmin = () => {
     if (location.pathname.includes('admin')) {

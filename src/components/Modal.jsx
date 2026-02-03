@@ -178,15 +178,16 @@ const ItemModal = () => {
 };
 
 const SignUpModal = () => {
-  const { closeModal } = useContext(ModalsContext);
+  const { closeModal, setSignedInUser } = useContext(ModalsContext);
   const [username, setUsername] = useState("");
   const [valid, setValid] = useState("");
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     const user = auth.currentUser;
-    updateProfile(user, { displayName: username });
+    await updateProfile(user, { displayName: username });
     setDoc(doc(db, "users", user.uid), { name: username, admin: "" });
     console.debug(`signUp() write to users/${user.uid}`);
+    setSignedInUser(username);
     setValid("is-valid");
     setTimeout(() => {
       closeModal();

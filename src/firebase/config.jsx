@@ -4,13 +4,13 @@ import { getAuth } from "firebase/auth";
 
 // Web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCAYOYDuMKGGjTSJL5uDzG5hjQ6y_vYPiI",
-  authDomain: "cc-silent-auction-b12fc.firebaseapp.com",
-  databaseURL: "https://cc-silent-auction-b12fc.firebaseio.com",
-  projectId: "cc-silent-auction-b12fc",
-  storageBucket: "cc-silent-auction-b12fc.appspot.com",
-  messagingSenderId: "791747024664",
-  appId: "1:791747024664:web:215a222a81c6d0c2aeb06d",
+  apiKey: "AIzaSyCBJAQUscviTabYrqhASbACZLmjnNoTDw0",
+  authDomain: "cc-silent-auction.firebaseapp.com",
+  projectId: "cc-silent-auction",
+  storageBucket: "cc-silent-auction.firebasestorage.app",
+  messagingSenderId: "606103062082",
+  appId: "1:606103062082:web:2cf6b18fb1c0a8893f4fdb",
+  measurementId: "G-M0C3J9B3NE"
 };
 
 // Initialize Firebase
