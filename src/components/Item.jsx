@@ -15,6 +15,9 @@ export const Item = ({ item }) => {
   const [amount, setAmount] = useState(item.startingPrice);
   const [timeLeft, setTimeLeft] = useState("");
   const [winner, setWinner] = useState("");
+  const [preview, setPreview] = useState(
+    !!(item.startTime && Date.now() < item.startTime.getTime())
+  );
 
   useEffect(() => {
     const status = itemStatus(item);
@@ -32,8 +35,16 @@ export const Item = ({ item }) => {
   useEffect(() => {
     const updateTimer = () => {
       const now = Date.now();
-      const remaining = item.endTime - now;
+      const isPreview = !!(item.startTime && now < item.startTime.getTime());
+      setPreview(isPreview);
 
+      if (isPreview) {
+        setTimeLeft(formatTime(item.startTime - now));
+        requestAnimationFrame(updateTimer);
+        return;
+      }
+
+      const remaining = item.endTime - now;
       if (remaining > 0) {
         setTimeLeft(formatTime(remaining));
         requestAnimationFrame(updateTimer);
@@ -43,7 +54,7 @@ export const Item = ({ item }) => {
     };
 
     requestAnimationFrame(updateTimer);
-  }, [item.endTime]);
+  }, [item.endTime, item.startTime]);
 
   useEffect(() => {
     import(`../assets/${item.primaryImage}.jpg`).then((src) => {
@@ -51,24 +62,42 @@ export const Item = ({ item }) => {
     })
   }, [item.primaryImage])
 
+  const handleClick = () => {
+    if (preview) return;
+    openModal(ModalTypes.ITEM, item);
+  };
+
   return (
     <div className="col">
-      <div className="card h-100" onClick={() => openModal(ModalTypes.ITEM, item)}>
-        <img
-          src={primaryImageSrc}
-          className="card-img-top"
-          alt={item.title}
-        />
+      <div className={`card h-100${preview ? " preview" : ""}`} onClick={handleClick}>
+        <div className={preview ? "preview-img-wrap" : ""}>
+          <img
+            src={primaryImageSrc}
+            className={`card-img-top${preview ? " preview-blur" : ""}`}
+            alt={item.title}
+          />
+        </div>
         <div className="card-body">
           <h5 className="title">{item.title}</h5>
           <h6 className="card-subtitle mb-2 text-body-secondary">{item.subtitle}</h6>
         </div>
         <ul className="list-group list-group-flush">
-          <li className="list-group-item d-flex justify-content-between align-items-center">
-            <strong>{amount}</strong>
-            {winner && <small className="text-muted">Leading: {winner}</small>}
-          </li>
-          <li className="list-group-item">{bids} bids · {timeLeft}</li>
+          {preview ? (
+            <>
+              <li className="list-group-item">
+                <strong>Check back in when bidding begins!</strong>
+              </li>
+              <li className="list-group-item">Starts in {timeLeft}</li>
+            </>
+          ) : (
+            <>
+              <li className="list-group-item d-flex justify-content-between align-items-center">
+                <strong>{amount}</strong>
+                {winner && <small className="text-muted">Leading: {winner}</small>}
+              </li>
+              <li className="list-group-item">{bids} bids · {timeLeft}</li>
+            </>
+          )}
         </ul>
       </div>
     </div>
@@ -80,6 +109,7 @@ Item.propTypes = {
     startingPrice: PropTypes.number.isRequired,
     currency: PropTypes.string.isRequired,
     endTime: PropTypes.object.isRequired,
+    startTime: PropTypes.object,
     primaryImage: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
     subtitle: PropTypes.string.isRequired,

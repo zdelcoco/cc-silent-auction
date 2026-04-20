@@ -54,6 +54,7 @@ const ItemModal = () => {
   const [lastBidder, setLastBidder] = useState("");
   const [numBids, setNumBids] = useState(0);
   const [isEnded, setIsEnded] = useState(false);
+  const [isPreview, setIsPreview] = useState(false);
 
   const minIncrease = activeItem.minimumIncrease || 1;
   const maxIncrease = activeItem.maximumIncrease || 10;
@@ -62,6 +63,13 @@ const ItemModal = () => {
     if (!activeItem.endTime) return;
     const checkEnded = () => {
       const now = Date.now();
+      if (activeItem.startTime && now < activeItem.startTime.getTime()) {
+        setIsPreview(true);
+        setIsEnded(false);
+        requestAnimationFrame(checkEnded);
+        return;
+      }
+      setIsPreview(false);
       const remaining = activeItem.endTime - now;
       if (remaining <= 0) {
         setIsEnded(true);
@@ -71,7 +79,7 @@ const ItemModal = () => {
       }
     };
     checkEnded();
-  }, [activeItem.endTime]);
+  }, [activeItem.endTime, activeItem.startTime]);
 
   useEffect(() => {
     if (activeItem.secondaryImage === undefined) return;
@@ -203,7 +211,12 @@ const ItemModal = () => {
         <p className="mt-3">{activeItem.detail}</p>
       </div>
       <div className="modal-footer flex-column align-items-stretch">
-        {isEnded ? (
+        {isPreview ? (
+          <div className="text-center py-3">
+            <p className="mb-2"><strong>Preview</strong></p>
+            <p className="mb-0">Bidding opens <strong>{activeItem.startTime.toLocaleString()}</strong></p>
+          </div>
+        ) : isEnded ? (
           <div className="text-center py-3">
             <p className="mb-2"><strong>Bidding closed!</strong></p>
             {lastBidder ? (
