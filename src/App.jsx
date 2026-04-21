@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import PropTypes from "prop-types";
 import "./App.css";
 import {
@@ -11,11 +11,27 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { AutoSignIn } from "./firebase/AutoSignIn";
 import { ItemsProvider } from "./contexts/ItemsProvider";
 import { ModalsProvider } from "./contexts/ModalsProvider";
+import { ModalsContext } from "./contexts/ModalsContext";
+import { ModalTypes } from "./utils/modalTypes";
 import Navbar from "./components/Navbar";
-import { SignUpModal } from "./components/Modal";
+import { SignUpModal, WelcomeModal } from "./components/Modal";
 import HomePage from "./pages/Home";
 import AdminPage from "./pages/Admin";
 import Footer from "./components/Footer";
+
+const WELCOME_SEEN_KEY = "cc-auction-welcome-seen";
+
+const FirstVisitWelcome = () => {
+  const { openModal } = useContext(ModalsContext);
+
+  useEffect(() => {
+    if (localStorage.getItem(WELCOME_SEEN_KEY)) return;
+    localStorage.setItem(WELCOME_SEEN_KEY, "1");
+    openModal(ModalTypes.WELCOME);
+  }, [openModal]);
+
+  return null;
+};
 
 function App() {
   const demo = false;
@@ -39,6 +55,8 @@ function App() {
       <Router>
         <Navbar admin={admin} />
         <SignUpModal />
+        <WelcomeModal />
+        <FirstVisitWelcome />
         <Routes>
           <Route path={import.meta.env.BASE_URL} Component={HomePage} />
           <Route

@@ -118,15 +118,27 @@ const Navbar = ({ admin }) => {
         </div>
         <Countdown mobileSolo={scrolled} />
         <div
-          className={`align-items-center ms-auto ${scrolled ? 'd-none d-md-flex' : 'd-flex'}`}
+          className={`align-items-center flex-wrap justify-content-end gap-2 ms-auto ${scrolled ? 'd-none d-md-flex' : 'd-flex'}`}
         >
-          <div className='navbar-brand me-2'>{user}</div>
+          {user && (
+            <div className='navbar-brand mb-0 me-0 text-truncate' style={{ maxWidth: '40vw' }}>
+              {user}
+            </div>
+          )}
           {admin && (
-            <button onClick={handleAdmin} className='btn btn-secondary me-2'>
+            <button onClick={handleAdmin} className='btn btn-secondary'>
               {adminButtonText}
             </button>
           )}
-          <button onClick={handleAuth} className='btn btn-secondary me-2'>
+          <button
+            onClick={() => openModal(ModalTypes.WELCOME)}
+            className='btn btn-secondary'
+            title='Auction info'
+            aria-label='Auction info'
+          >
+            Info
+          </button>
+          <button onClick={handleAuth} className='btn btn-secondary'>
             {authButtonText}
           </button>
         </div>

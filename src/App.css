@@ -34,3 +34,8 @@ body.modal-active {
 body.modal-active #root {
   filter: blur(12px);
 }
+
+.welcome-modal-body {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}

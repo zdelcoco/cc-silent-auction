@@ -528,4 +528,57 @@ const SignUpModal = () => {
   );
 };
 
-export { ItemModal, SignUpModal };
+const WelcomeModal = () => {
+  const { closeModal } = useContext(ModalsContext);
+
+  return (
+    <Modal type={ModalTypes.WELCOME} title="Welcome!">
+      <div className="modal-body welcome-modal-body">
+        <p className="mb-2"><strong>Classical Conversations Scholarship Fundraiser</strong></p>
+        <p>We&rsquo;re so glad you&rsquo;re here&mdash;get ready to bid, win, and support Memphis Central CC!</p>
+
+        <h6 className="mt-3">The Why</h6>
+        <ul className="ps-3">
+          <li>Every purchase helps support our Foundations and Essentials families in need</li>
+          <li>Funds go toward tuition assistance for the <strong>2026&ndash;2027 school year</strong></li>
+          <li>Your generosity directly blesses our community</li>
+        </ul>
+
+        <h6 className="mt-3">Auction Details</h6>
+        <ul className="ps-3">
+          <li>We&rsquo;ve gone <strong>online</strong> this year&mdash;easy and convenient!</li>
+          <li>Log in using your <strong>email and phone number</strong></li>
+          <li><strong>Opens:</strong> April 24 at 9:00 AM</li>
+          <li><strong>Closes:</strong> May 1 at 12:00 PM (don&rsquo;t miss it!)</li>
+        </ul>
+
+        <h6 className="mt-3">Winning &amp; Payment</h6>
+        <ul className="ps-3">
+          <li>Winners will be notified via <strong>email</strong></li>
+          <li>Payment is due on <strong>May 1 by 5:00 PM</strong></li>
+          <li>Accepted payment methods: Venmo @nathalie-mooney, cash, or check (Nathalie Mooney)</li>
+        </ul>
+
+        <h6 className="mt-3">Item Pickup</h6>
+        <ul className="ps-3">
+          <li>Pick up at the <strong>End-of-Year Awards Ceremony on May 1st at 6:30 PM</strong></li>
+          <li>Or send a friend to grab them for you that evening</li>
+        </ul>
+
+        <h6 className="mt-3">Questions?</h6>
+        <ul className="ps-3">
+          <li>Reach out to <strong>Nathalie</strong> &mdash; 901-503-1535</li>
+        </ul>
+
+        <p className="mt-3 mb-0"><strong>Thank you for supporting our community&mdash;we couldn&rsquo;t do this without you!</strong></p>
+      </div>
+      <div className="modal-footer">
+        <button type="button" className="btn btn-primary w-100" onClick={closeModal}>
+          Let&rsquo;s go!
+        </button>
+      </div>
+    </Modal>
+  );
+};
+
+export { ItemModal, SignUpModal, WelcomeModal };
