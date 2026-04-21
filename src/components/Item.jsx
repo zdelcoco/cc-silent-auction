@@ -60,8 +60,15 @@ export const Item = ({ item }) => {
     })
   }, [item.primaryImage])
 
+  const isDonation = item.type === "donation";
+
   const handleClick = () => {
     if (preview) return;
+    if (isDonation) {
+      if (ended) return;
+      openModal(ModalTypes.DONATION, item);
+      return;
+    }
     openModal(ModalTypes.ITEM, item);
   };
 
@@ -69,7 +76,7 @@ export const Item = ({ item }) => {
 
   return (
     <div className="col">
-      <div className={`card h-100${preview ? " preview" : ""}`} onClick={handleClick}>
+      <div className={`card h-100${preview || (isDonation && ended) ? " preview" : ""}`} onClick={handleClick}>
         <div className={imgBlurred ? "preview-img-wrap" : ""}>
           <img
             src={primaryImageSrc}
@@ -85,7 +92,13 @@ export const Item = ({ item }) => {
         <ul className="list-group list-group-flush">
           {preview ? (
             <li className="list-group-item">
-              <strong>Check back in when bidding begins!</strong>
+              <strong>
+                {isDonation ? "Donations open soon!" : "Check back in when bidding begins!"}
+              </strong>
+            </li>
+          ) : isDonation ? (
+            <li className="list-group-item text-center">
+              <strong>{ended ? "Donations closed" : "Donate via Venmo"}</strong>
             </li>
           ) : (
             <>
@@ -117,5 +130,6 @@ Item.propTypes = {
     primaryImage: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
     subtitle: PropTypes.string.isRequired,
+    type: PropTypes.string,
   })
 }

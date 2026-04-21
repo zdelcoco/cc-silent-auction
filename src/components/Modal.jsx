@@ -596,4 +596,132 @@ const WelcomeModal = () => {
   );
 };
 
-export { ItemModal, SignUpModal, WelcomeModal };
+const buildVenmoUrl = (username, amount, note) => {
+  const params = new URLSearchParams({
+    txn: "pay",
+    recipients: username,
+    amount: amount.toFixed(2),
+  });
+  if (note) params.set("note", note);
+  return `https://venmo.com/?${params.toString()}`;
+};
+
+const DonationModal = () => {
+  const { activeItem, closeModal, currentModal } = useContext(ModalsContext);
+  const [customAmount, setCustomAmount] = useState("");
+  const [valid, setValid] = useState("");
+  const [feedback, setFeedback] = useState("");
+
+  useEffect(() => {
+    if (currentModal === ModalTypes.DONATION) {
+      setCustomAmount("");
+      setValid("");
+      setFeedback("");
+    }
+  }, [currentModal]);
+
+  const [secondaryImageSrc, setSecondaryImageSrc] = useState("");
+  useEffect(() => {
+    setSecondaryImageSrc("");
+    if (!activeItem.secondaryImage) return;
+    let cancelled = false;
+    import(`../assets/${activeItem.secondaryImage}.webp`).then((src) => {
+      if (!cancelled) setSecondaryImageSrc(src.default);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [activeItem.secondaryImage]);
+
+  const presets = activeItem.presetAmounts || [5, 20, 50, 100];
+  const username = activeItem.venmoUsername;
+  const note = activeItem.venmoNote || "";
+
+  const launchVenmo = (amount) => {
+    if (!username) {
+      setFeedback("Venmo recipient is not configured.");
+      setValid("is-invalid");
+      return;
+    }
+    const url = buildVenmoUrl(username, amount, note);
+    window.open(url, "_blank", "noopener,noreferrer");
+    closeModal();
+  };
+
+  const handleCustomDonate = () => {
+    if (!/^\d+(\.\d{1,2})?$/.test(customAmount)) {
+      setFeedback("Please enter a valid amount.");
+      setValid("is-invalid");
+      return;
+    }
+    const parsed = parseFloat(customAmount);
+    if (parsed <= 0) {
+      setFeedback("Amount must be greater than zero.");
+      setValid("is-invalid");
+      return;
+    }
+    launchVenmo(parsed);
+  };
+
+  const handleChange = (e) => {
+    setCustomAmount(e.target.value);
+    setValid("");
+    setFeedback("");
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") handleCustomDonate();
+  };
+
+  return (
+    <Modal type={ModalTypes.DONATION} title={activeItem.title || "Donate"}>
+      <div className="modal-body">
+        {secondaryImageSrc && (
+          <img src={secondaryImageSrc} className="img-fluid" alt={activeItem.title} />
+        )}
+        {activeItem.detail && <p className="mt-3">{activeItem.detail}</p>}
+      </div>
+      <div className="modal-footer flex-column align-items-stretch">
+        <p className="mb-2 text-center">
+          Choose an amount to donate via Venmo to <strong>@{username}</strong>
+        </p>
+        <div className="d-flex flex-wrap gap-2 mb-3">
+          {presets.map((preset) => (
+            <button
+              key={preset}
+              type="button"
+              className="btn btn-outline-primary flex-grow-1"
+              onClick={() => launchVenmo(preset)}
+              style={{ minWidth: "5rem" }}
+            >
+              {formatMoney(activeItem.currency || "$", preset)}
+            </button>
+          ))}
+        </div>
+        <div className="input-group mb-2">
+          <span className="input-group-text">{activeItem.currency || "$"}</span>
+          <input
+            className={`form-control ${valid}`}
+            value={customAmount}
+            onChange={handleChange}
+            onKeyDown={handleKeyDown}
+            placeholder="Or enter custom amount"
+          />
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={handleCustomDonate}
+          >
+            Donate
+          </button>
+          <div className="invalid-feedback">{feedback}</div>
+        </div>
+        <small className="text-muted text-center">
+          You&rsquo;ll be redirected to Venmo to complete your donation.
+        </small>
+      </div>
+    </Modal>
+  );
+};
+
+export { ItemModal, SignUpModal, WelcomeModal, DonationModal };
