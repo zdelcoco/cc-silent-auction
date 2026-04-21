@@ -55,7 +55,7 @@ export const Item = ({ item }) => {
   }, [item.endTime, item.startTime]);
 
   useEffect(() => {
-    import(`../assets/${item.primaryImage}.jpg`).then((src) => {
+    import(`../assets/${item.primaryImage}.webp`).then((src) => {
       setPrimaryImageSrc(src.default)
     })
   }, [item.primaryImage])
@@ -75,6 +75,7 @@ export const Item = ({ item }) => {
             src={primaryImageSrc}
             className={`card-img-top${imgBlurred ? " preview-blur" : ""}`}
             alt={item.title}
+            loading="lazy"
           />
         </div>
         <div className="card-body">
