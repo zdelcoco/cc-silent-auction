@@ -7,3 +7,30 @@ html * {
   cursor: pointer;
   box-shadow: 0 0 0.2rem gray;
 }
+
+.card.preview {
+  cursor: default;
+}
+
+.card.preview:hover {
+  box-shadow: none;
+}
+
+.preview-img-wrap {
+  overflow: hidden;
+}
+
+.preview-blur {
+  filter: blur(16px);
+  transform: scale(1.1);
+  transition: filter 0.2s ease;
+  display: block;
+}
+
+body.modal-active {
+  overflow: hidden;
+}
+
+body.modal-active #root {
+  filter: blur(12px);
+}

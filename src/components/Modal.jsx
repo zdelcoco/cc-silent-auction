@@ -4,7 +4,7 @@ import ReactDOM from "react-dom";
 import { itemStatus } from "../utils/itemStatus";
 import { formatField, formatMoney } from "../utils/formatString";
 import { updateProfile } from "firebase/auth";
-import { doc, setDoc, updateDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc, updateDoc, getDoc, Timestamp } from "firebase/firestore";
 import { auth, db } from "../firebase/config";
 import { ModalsContext } from "../contexts/ModalsContext";
 import { ModalTypes } from "../utils/modalTypes";
@@ -50,47 +50,65 @@ const ItemModal = () => {
   const [valid, setValid] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState("");
-  const [currentAmount, setCurrentAmount] = useState(0);
   const [lastBidder, setLastBidder] = useState("");
-  const [numBids, setNumBids] = useState(0);
-  const [isEnded, setIsEnded] = useState(false);
+  const [pendingAction, setPendingAction] = useState(null);
+  const [, setTick] = useState(0);
 
   const minIncrease = activeItem.minimumIncrease || 1;
   const maxIncrease = activeItem.maximumIncrease || 10;
 
+  const status = activeItem.endTime
+    ? itemStatus(activeItem)
+    : { amount: 0, bids: 0, winner: "" };
+  const currentAmount = status.amount;
+  const now = Date.now();
+  const isPreview = !!(activeItem.startTime && now < activeItem.startTime.getTime());
+  const isEnded = !!(activeItem.endTime && now >= activeItem.endTime.getTime());
+
   useEffect(() => {
     if (!activeItem.endTime) return;
-    const checkEnded = () => {
-      const now = Date.now();
-      const remaining = activeItem.endTime - now;
-      if (remaining <= 0) {
-        setIsEnded(true);
-      } else {
-        setIsEnded(false);
-        requestAnimationFrame(checkEnded);
-      }
-    };
-    checkEnded();
-  }, [activeItem.endTime]);
-
-  useEffect(() => {
-    if (activeItem.secondaryImage === undefined) return;
-    import(`../assets/${activeItem.secondaryImage}.jpg`).then((src) => {
-      setSecondaryImageSrc(src.default)
-    })
-  }, [activeItem.secondaryImage])
-
-  useEffect(() => {
-    const status = itemStatus(activeItem);
-    setCurrentAmount(status.amount);
-    setNumBids(status.bids);
-    if (status.winner) {
-      getDoc(doc(db, "users", status.winner)).then((user) => {
-        setLastBidder(user.get("name"));
-      });
-    } else {
-      setLastBidder("");
+    const timers = [];
+    const nowMs = Date.now();
+    const startMs = activeItem.startTime ? activeItem.startTime.getTime() : null;
+    const endMs = activeItem.endTime.getTime();
+    if (startMs && nowMs < startMs) {
+      timers.push(setTimeout(() => setTick((t) => t + 1), startMs - nowMs));
     }
+    if (nowMs < endMs) {
+      timers.push(setTimeout(() => setTick((t) => t + 1), endMs - nowMs));
+    }
+    return () => timers.forEach(clearTimeout);
+  }, [activeItem.endTime, activeItem.startTime]);
+
+  useEffect(() => {
+    setSecondaryImageSrc("");
+    if (activeItem.secondaryImage === undefined) return;
+    let cancelled = false;
+    import(`../assets/${activeItem.secondaryImage}.jpg`).then((src) => {
+      if (!cancelled) setSecondaryImageSrc(src.default);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [activeItem.secondaryImage]);
+
+  useEffect(() => {
+    setIsSubmitting(false);
+    setFeedback("");
+    setValid("");
+    setBid("");
+    setPendingAction(null);
+    const winnerUid = activeItem.endTime ? itemStatus(activeItem).winner : "";
+    if (winnerUid) {
+      let cancelled = false;
+      getDoc(doc(db, "users", winnerUid)).then((user) => {
+        if (!cancelled) setLastBidder(user.get("name"));
+      });
+      return () => {
+        cancelled = true;
+      };
+    }
+    setLastBidder("");
   }, [activeItem]);
 
   const minBidAmount = currentAmount + minIncrease;
@@ -105,12 +123,8 @@ const ItemModal = () => {
     }, 1000);
   };
 
-  const submitBid = (amount) => {
-    // Get bid submission time as early as possible
-    let nowTime = new Date().getTime();
-    // Disable bid submission while we submit the current request
-    setIsSubmitting(true);
-    // Ensure item has not already ended
+  const executeBid = (amount) => {
+    const nowTime = new Date().getTime();
     if (activeItem.endTime - nowTime < 0) {
       setFeedback("Sorry, this item has ended!");
       setValid("is-invalid");
@@ -118,7 +132,71 @@ const ItemModal = () => {
       setIsSubmitting(false);
       return;
     }
-    // Ensure user has provided a username
+    const status = itemStatus(activeItem);
+    const currentMin = status.amount + minIncrease;
+    const currentMax = status.amount + maxIncrease;
+    if (amount < currentMin) {
+      setFeedback(`Minimum bid is ${formatMoney(activeItem.currency, currentMin)}`);
+      setValid("is-invalid");
+      setIsSubmitting(false);
+      return;
+    }
+    if (amount > currentMax) {
+      setFeedback(`Maximum bid is ${formatMoney(activeItem.currency, currentMax)}`);
+      setValid("is-invalid");
+      setIsSubmitting(false);
+      return;
+    }
+    updateDoc(doc(db, "auction", "items"), {
+      [formatField(activeItem.id, status.bids + 1)]: {
+        amount,
+        uid: auth.currentUser.uid,
+      },
+    });
+    console.debug("submitBid() write to auction/items");
+    setValid("is-valid");
+    delayedClose();
+  };
+
+  const executeBuyItNow = () => {
+    const nowTime = new Date().getTime();
+    if (activeItem.endTime - nowTime < 0) {
+      setFeedback("Sorry, this item has ended!");
+      setValid("is-invalid");
+      delayedClose();
+      setIsSubmitting(false);
+      return;
+    }
+    const price = activeItem.buyItNow;
+    const status = itemStatus(activeItem);
+    if (status.amount >= price) {
+      setFeedback("Current bid has already exceeded the buy-it-now price.");
+      setValid("is-invalid");
+      setIsSubmitting(false);
+      return;
+    }
+    updateDoc(doc(db, "auction", "items"), {
+      [formatField(activeItem.id, status.bids + 1)]: {
+        amount: price,
+        uid: auth.currentUser.uid,
+      },
+      [`${formatField(activeItem.id, 0)}.endTime`]: Timestamp.now(),
+    });
+    console.debug("handleBuyItNow() write to auction/items");
+    setValid("is-valid");
+    delayedClose();
+  };
+
+  const submitBid = (amount) => {
+    const nowTime = new Date().getTime();
+    setIsSubmitting(true);
+    if (activeItem.endTime - nowTime < 0) {
+      setFeedback("Sorry, this item has ended!");
+      setValid("is-invalid");
+      delayedClose();
+      setIsSubmitting(false);
+      return;
+    }
     if (auth.currentUser.displayName == null) {
       setFeedback("You must provide a username before bidding!");
       setValid("is-invalid");
@@ -129,25 +207,21 @@ const ItemModal = () => {
       }, 1000)
       return;
     }
-    // Get current status for validation
     const status = itemStatus(activeItem);
     const currentMin = status.amount + minIncrease;
     const currentMax = status.amount + maxIncrease;
-    // Ensure input is large enough
     if (amount < currentMin) {
       setFeedback(`Minimum bid is ${formatMoney(activeItem.currency, currentMin)}`);
       setValid("is-invalid");
       setIsSubmitting(false);
       return;
     }
-    // Ensure input is small enough
     if (amount > currentMax) {
       setFeedback(`Maximum bid is ${formatMoney(activeItem.currency, currentMax)}`);
       setValid("is-invalid");
       setIsSubmitting(false);
       return;
     }
-    // Ensure bid is in correct increment
     const increase = amount - status.amount;
     if (increase % minIncrease !== 0) {
       setFeedback(`Bid must be in increments of ${formatMoney(activeItem.currency, minIncrease)}`);
@@ -155,16 +229,46 @@ const ItemModal = () => {
       setIsSubmitting(false);
       return;
     }
-    // Finally, place bid
-    updateDoc(doc(db, "auction", "items"), {
-      [formatField(activeItem.id, status.bids + 1)]: {
-        amount,
-        uid: auth.currentUser.uid,
-      },
-    });
-    console.debug("submitBid() write to auction/items");
-    setValid("is-valid");
-    delayedClose();
+    setPendingAction({ type: "bid", amount });
+  };
+
+  const handleBuyItNow = () => {
+    const nowTime = new Date().getTime();
+    setIsSubmitting(true);
+    if (activeItem.endTime - nowTime < 0) {
+      setFeedback("Sorry, this item has ended!");
+      setValid("is-invalid");
+      delayedClose();
+      setIsSubmitting(false);
+      return;
+    }
+    if (auth.currentUser.displayName == null) {
+      setFeedback("You must provide a username before bidding!");
+      setValid("is-invalid");
+      setTimeout(() => {
+        openModal(ModalTypes.SIGN_UP);
+        setIsSubmitting(false);
+        setValid("");
+      }, 1000);
+      return;
+    }
+    setPendingAction({ type: "buyNow", amount: activeItem.buyItNow });
+  };
+
+  const handleConfirmAction = () => {
+    if (!pendingAction) return;
+    const action = pendingAction;
+    setPendingAction(null);
+    if (action.type === "buyNow") {
+      executeBuyItNow();
+    } else {
+      executeBid(action.amount);
+    }
+  };
+
+  const handleCancelAction = () => {
+    setPendingAction(null);
+    setIsSubmitting(false);
   };
 
   const handleSubmitBid = () => {
@@ -203,7 +307,48 @@ const ItemModal = () => {
         <p className="mt-3">{activeItem.detail}</p>
       </div>
       <div className="modal-footer flex-column align-items-stretch">
-        {isEnded ? (
+        {pendingAction ? (
+          <div className="text-center py-2">
+            <p className="mb-3">
+              {pendingAction.type === "buyNow" ? (
+                <>
+                  Buy <strong>{activeItem.title}</strong> now for{" "}
+                  <strong>{formatMoney(activeItem.currency, pendingAction.amount)}</strong>?
+                  <br />
+                  <small className="text-muted">This will end the auction immediately.</small>
+                </>
+              ) : (
+                <>
+                  Place a bid of{" "}
+                  <strong>{formatMoney(activeItem.currency, pendingAction.amount)}</strong> on{" "}
+                  <strong>{activeItem.title}</strong>?
+                </>
+              )}
+            </p>
+            <div className="d-flex gap-2">
+              <button
+                type="button"
+                className="btn btn-outline-secondary flex-grow-1"
+                onClick={handleCancelAction}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className={`btn flex-grow-1 ${pendingAction.type === "buyNow" ? "btn-success" : "btn-primary"}`}
+                onClick={handleConfirmAction}
+                autoFocus
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        ) : isPreview ? (
+          <div className="text-center py-3">
+            <p className="mb-2"><strong>Preview</strong></p>
+            <p className="mb-0">Bidding opens <strong>{activeItem.startTime.toLocaleString()}</strong></p>
+          </div>
+        ) : isEnded ? (
           <div className="text-center py-3">
             <p className="mb-2"><strong>Bidding closed!</strong></p>
             {lastBidder ? (
@@ -240,6 +385,16 @@ const ItemModal = () => {
                 Max Bid - {formatMoney(activeItem.currency, maxBidAmount)}
               </button>
             </div>
+            {activeItem.buyItNow && currentAmount < activeItem.buyItNow && (
+              <button
+                type="button"
+                className="btn btn-success w-100 mb-3"
+                onClick={handleBuyItNow}
+                disabled={isSubmitting}
+              >
+                Buy It Now - {formatMoney(activeItem.currency, activeItem.buyItNow)}
+              </button>
+            )}
             <div className="input-group mb-2">
               <span className="input-group-text">{activeItem.currency}</span>
               <input

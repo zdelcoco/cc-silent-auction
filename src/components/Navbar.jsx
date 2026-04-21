@@ -4,7 +4,55 @@ import { useNavigate, useLocation } from 'react-router';
 import { auth } from '../firebase/config';
 import { onAuthStateChanged } from 'firebase/auth';
 import { ModalsContext } from '../contexts/ModalsContext';
+import { ItemsContext } from '../contexts/ItemsContext';
 import { ModalTypes } from '../utils/modalTypes';
+import { formatTime } from '../utils/formatString';
+
+const Countdown = ({ mobileSolo }) => {
+  const { items } = useContext(ItemsContext);
+  const [label, setLabel] = useState('');
+
+  useEffect(() => {
+    if (items.length === 0) {
+      setLabel('');
+      return;
+    }
+    const { startTime, endTime } = items[0];
+    let rafId;
+    const tick = () => {
+      const now = Date.now();
+      if (startTime && now < startTime.getTime()) {
+        setLabel(`Starts in ${formatTime(startTime - now)}`);
+        rafId = requestAnimationFrame(tick);
+      } else if (now < endTime.getTime()) {
+        setLabel(`Ends in ${formatTime(endTime - now)}`);
+        rafId = requestAnimationFrame(tick);
+      } else {
+        setLabel('Auction ended');
+      }
+    };
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+  }, [items]);
+
+  if (!label) return null;
+  return (
+    <>
+      <div className='navbar-brand mb-0 text-nowrap d-none d-md-block position-absolute start-50 translate-middle-x'>
+        {label}
+      </div>
+      <div
+        className={`navbar-brand mb-0 text-nowrap text-center w-100 order-last d-md-none ${mobileSolo ? '' : 'mt-2'}`}
+      >
+        {label}
+      </div>
+    </>
+  );
+};
+
+Countdown.propTypes = {
+  mobileSolo: PropTypes.bool,
+};
 
 const Navbar = ({ admin }) => {
   const { openModal, signedInUser } = useContext(ModalsContext);
@@ -12,7 +60,15 @@ const Navbar = ({ admin }) => {
   const [user, setUser] = useState('');
   const [authButtonText, setAuthButtonText] = useState('Sign up');
   const [adminButtonText, setAdminButtonText] = useState('Admin');
+  const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -53,20 +109,18 @@ const Navbar = ({ admin }) => {
   };
 
   return (
-    <nav className='navbar navbar-dark bg-primary'>
-      <div className='container-fluid'>
-        <div className='navbar-brand mb-0 h1 me-auto'>
-          {/* <img
-            src={import.meta.env.BASE_URL + 'logo.png'}
-            alt='Logo'
-            width='30'
-            height='24'
-            className='d-inline-block align-text-top'
-          /> */}
-          CC Silent Auction
+    <nav className='navbar navbar-dark bg-primary sticky-top'>
+      <div className='container-fluid position-relative'>
+        <div
+          className={`navbar-brand mb-0 h1 ${scrolled ? 'd-none d-md-block' : ''}`}
+        >
+          Memphis Central CC Silent Auction
         </div>
-        <div className='row row-cols-auto'>
-          <div className='navbar-brand'>{user}</div>
+        <Countdown mobileSolo={scrolled} />
+        <div
+          className={`align-items-center ms-auto ${scrolled ? 'd-none d-md-flex' : 'd-flex'}`}
+        >
+          <div className='navbar-brand me-2'>{user}</div>
           {admin && (
             <button onClick={handleAdmin} className='btn btn-secondary me-2'>
               {adminButtonText}
