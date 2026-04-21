@@ -60,6 +60,7 @@ Countdown.propTypes = {
 
 const Navbar = ({ admin }) => {
   const { openModal, signedInUser, setSignedInUser } = useContext(ModalsContext);
+  const { items } = useContext(ItemsContext);
   const navigate = useNavigate();
   const [user, setUser] = useState('');
   const [authButtonText, setAuthButtonText] = useState('Sign up');
@@ -67,6 +68,11 @@ const Navbar = ({ admin }) => {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
+
+  const donationItem = items.find((item) => item.type === 'donation');
+  const donationOpen = donationItem
+    && Date.now() >= (donationItem.startTime ? donationItem.startTime.getTime() : 0)
+    && Date.now() < donationItem.endTime.getTime();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -121,6 +127,11 @@ const Navbar = ({ admin }) => {
     openModal(ModalTypes.WELCOME);
   };
 
+  const handleDonate = () => {
+    setMenuOpen(false);
+    if (donationItem) openModal(ModalTypes.DONATION, donationItem);
+  };
+
   return (
     <nav className='navbar navbar-dark bg-primary sticky-top'>
       <div className='container-fluid position-relative'>
@@ -145,6 +156,11 @@ const Navbar = ({ admin }) => {
           {admin && (
             <button onClick={handleAdmin} className='btn btn-secondary'>
               {adminButtonText}
+            </button>
+          )}
+          {donationOpen && (
+            <button onClick={handleDonate} className='btn btn-success'>
+              Donate
             </button>
           )}
           <button
@@ -178,6 +194,11 @@ const Navbar = ({ admin }) => {
               {admin && (
                 <button onClick={handleAdmin} className='btn btn-secondary'>
                   {adminButtonText}
+                </button>
+              )}
+              {donationOpen && (
+                <button onClick={handleDonate} className='btn btn-success'>
+                  Donate
                 </button>
               )}
               <button onClick={handleInfo} className='btn btn-secondary'>
