@@ -1,76 +1,219 @@
 - id: 0
-  primaryImage: balloon
-  title: Balloon
-  subtitle: It's blue!
-  detail: A little deflated, but still good.
-  secondaryImage: balloon
+  primaryImage: grizzlies_basketball
+  title: Grizzlies Team Signed Basketball
+  subtitle: 2025 team signatures
+  detail: Certificate of Authentication included!
+  secondaryImage: grizzlies_basketball
   currency: $
-  amount: 5
-  minimumIncrease: 1
-  maximumIncrease: 5
-  startTime: 2026-04-19T12:00:00+00:00
-  endTime: 2026-05-09T20:00:00+00:00
+  amount: 100
+  minimumIncrease: 5
+  maximumIncrease: 20
+  startTime: 2026-04-20T00:00:00+00:00
+  endTime: 2026-05-01T17:00:00+00:00
 
 - id: 1
-  primaryImage: cart
-  title: Shopping Cart
-  subtitle: Doesn't hold much
-  detail: Your kids will love it.
-  secondaryImage: cart
+  primaryImage: grizzlies_mini_hoop
+  title: Grizzlies Door Mini Hoop
+  subtitle: Over-the-door basketball hoop
+  secondaryImage: grizzlies_mini_hoop
   currency: $
   amount: 10
   minimumIncrease: 1
   maximumIncrease: 5
-  startTime: 2026-04-19T12:00:00+00:00
-  endTime: 2026-05-09T20:05:00+00:00
+  startTime: 2026-04-20T00:00:00+00:00
+  endTime: 2026-05-01T17:00:00+00:00
 
 - id: 2
-  primaryImage: croc
-  title: Zach's Croc
-  subtitle: A little "seasoned"
-  detail: Just the left one.
-  secondaryImage: croc
+  primaryImage: grizzlies_scarf
+  title: Memphis Grizzlies Scarf
+  subtitle: Stylish and warm!
+  secondaryImage: grizzlies_scarf
   currency: $
-  amount: 50
-  minimumIncrease: 5
-  maximumIncrease: 25
-  startTime: 2026-04-19T12:00:00+00:00
-  endTime: 2026-05-09T20:10:00+00:00
-
-- id: 3
-  primaryImage: hotsauce
-  title: Sriracha Hot Sauce
-  subtitle: The good stuff
-  secondaryImage: hotsauce
-  currency: $
-  amount: 7
+  amount: 10
   minimumIncrease: 1
   maximumIncrease: 5
-  startTime: 2026-04-19T12:00:00+00:00
-  endTime: 2026-05-09T20:15:00+00:00
+  startTime: 2026-04-20T00:00:00+00:00
+  endTime: 2026-05-01T17:00:00+00:00
+
+- id: 3
+  primaryImage: zach_edey_autograph
+  title: Zach Edey Autographed Picture
+  subtitle: Memphis Grizzlies
+  secondaryImage: zach_edey_autograph
+  currency: $
+  amount: 10
+  minimumIncrease: 1
+  maximumIncrease: 5
+  startTime: 2026-04-20T00:00:00+00:00
+  endTime: 2026-05-01T17:00:00+00:00
 
 - id: 4
-  primaryImage: odyssey
-  title: 2021 Honda Odyssey Touring
-  subtitle: A little banged up
-  detail: Runs great, needs new tires.
-  secondaryImage: odyssey
+  primaryImage: santi_aldama_autograph
+  title: Santi Aldama Autographed Picture
+  subtitle: Memphis Grizzlies
+  secondaryImage: santi_aldama_autograph
   currency: $
-  amount: 50000
-  minimumIncrease: 500
-  maximumIncrease: 2500
-  startTime: 2026-04-19T12:00:00+00:00
-  endTime: 2026-05-09T20:20:00+00:00
+  amount: 10
+  minimumIncrease: 1
+  maximumIncrease: 5
+  startTime: 2026-04-20T00:00:00+00:00
+  endTime: 2026-05-01T17:00:00+00:00
 
 - id: 5
-  primaryImage: odyssey
-  title: bing bong
-  subtitle: A little banged up
-  detail: Runs great, needs new tires.
-  secondaryImage: odyssey
+  primaryImage: brandon_clarke_autograph
+  title: Brandon Clarke Autographed Picture
+  subtitle: Memphis Grizzlies
+  secondaryImage: brandon_clarke_autograph
   currency: $
-  amount: 1
-  minimumIncrease: 500
-  maximumIncrease: 2500
-  startTime: 2026-04-25T12:00:00+00:00
-  endTime: 2026-05-09T20:20:00+00:00
+  amount: 10
+  minimumIncrease: 1
+  maximumIncrease: 5
+  startTime: 2026-04-20T00:00:00+00:00
+  endTime: 2026-05-01T17:00:00+00:00
+
+- id: 6
+  primaryImage: grind_city_tshirts
+  title: Grind City T-Shirts (4)
+  subtitle: From CC shop or send your own design
+  secondaryImage: grind_city_tshirts
+  currency: $
+  amount: 30
+  minimumIncrease: 2.50
+  maximumIncrease: 10
+  startTime: 2026-04-20T00:00:00+00:00
+  endTime: 2026-05-01T17:00:00+00:00
+
+- id: 7
+  primaryImage: frost_bake_shop
+  title: Frost Bake Shop Gift Card
+  subtitle: Buy-it-now option available!
+  detail: "Buy-it-now option: $45"
+  secondaryImage: frost_bake_shop
+  currency: $
+  amount: 25
+  minimumIncrease: 1
+  maximumIncrease: 5
+  startTime: 2026-04-20T00:00:00+00:00
+  endTime: 2026-05-01T17:00:00+00:00
+
+- id: 8
+  primaryImage: mempops_gc
+  title: Mempops Gift Card
+  secondaryImage: mempops_gc
+  currency: $
+  amount: 15
+  minimumIncrease: 1
+  maximumIncrease: 5
+  startTime: 2026-04-20T00:00:00+00:00
+  endTime: 2026-05-01T17:00:00+00:00
+
+- id: 9
+  primaryImage: botanic_gardens
+  title: Memphis Botanic Gardens
+  subtitle: 4 passes
+  secondaryImage: botanic_gardens
+  currency: $
+  amount: 15
+  minimumIncrease: 1
+  maximumIncrease: 5
+  startTime: 2026-04-20T00:00:00+00:00
+  endTime: 2026-05-01T17:00:00+00:00
+
+- id: 10
+  primaryImage: memphis_pizza_cafe_gc
+  title: Memphis Pizza Cafe Gift Card
+  subtitle: Buy-it-now option available!
+  detail: "Buy-it-now option: $35"
+  secondaryImage: memphis_pizza_cafe_gc
+  currency: $
+  amount: 15
+  minimumIncrease: 1
+  maximumIncrease: 5
+  startTime: 2026-04-20T00:00:00+00:00
+  endTime: 2026-05-01T17:00:00+00:00
+
+- id: 11
+  primaryImage: camp_radio_sr
+  title: Camp Radio - Senior
+  subtitle: Ages 10-14
+  detail: Valid for the week of July 13-17. Courtesy of Becky Forrester. $125 value! Email bmuse79@yahoo.com for more info.
+  secondaryImage: camp_radio_sr
+  currency: $
+  amount: 25
+  minimumIncrease: 1
+  maximumIncrease: 5
+  startTime: 2026-04-20T00:00:00+00:00
+  endTime: 2026-05-01T17:00:00+00:00
+
+- id: 12
+  primaryImage: camp_radio_jr
+  title: Camp Radio - Junior
+  subtitle: Ages 5-9
+  detail: Valid for the week of July 6-10. Courtesy of Becky Forrester. $125 value! Email bmuse79@yahoo.com for more info.
+  secondaryImage: camp_radio_jr
+  currency: $
+  amount: 25
+  minimumIncrease: 1
+  maximumIncrease: 5
+  startTime: 2026-04-20T00:00:00+00:00
+  endTime: 2026-05-01T17:00:00+00:00
+
+- id: 13
+  primaryImage: jojos_coffee_gc
+  title: Jojo's Coffee Gift Card + Espresso Beans
+  secondaryImage: jojos_coffee_gc
+  currency: $
+  amount: 15
+  minimumIncrease: 1
+  maximumIncrease: 5
+  startTime: 2026-04-20T00:00:00+00:00
+  endTime: 2026-05-01T17:00:00+00:00
+
+- id: 14
+  primaryImage: assorted_books_and_light
+  title: Novel Bundle with Book Light
+  secondaryImage: assorted_books_and_light
+  currency: $
+  amount: 15
+  minimumIncrease: 1
+  maximumIncrease: 5
+  startTime: 2026-04-20T00:00:00+00:00
+  endTime: 2026-05-01T17:00:00+00:00
+
+- id: 15
+  primaryImage: goulds_bundle
+  title: Gould's Academy Bundle
+  subtitle: Spa day + hair care essentials
+  detail: 2 Mani/Pedis, 2 Facials, nail polish, men's and women's hair products, and more!
+  secondaryImage: goulds_bundle
+  currency: $
+  amount: 30
+  minimumIncrease: 2.50
+  maximumIncrease: 10
+  startTime: 2026-04-20T00:00:00+00:00
+  endTime: 2026-05-01T17:00:00+00:00
+
+- id: 16
+  primaryImage: chickfila_basket
+  title: Chick-fil-A Basket
+  subtitle: 15 meal cards + CFA swag
+  secondaryImage: chickfila_basket
+  currency: $
+  amount: 40
+  minimumIncrease: 2.50
+  maximumIncrease: 10
+  startTime: 2026-04-20T00:00:00+00:00
+  endTime: 2026-05-01T17:00:00+00:00
+
+- id: 17
+  primaryImage: flower
+  title: 3 Months of Flowers
+  subtitle: Green Pastures Flower Farm
+  detail: Valid May, June, and July. Courtesy of Sarah Cowgur.
+  secondaryImage: flower
+  currency: $
+  amount: 25
+  minimumIncrease: 1
+  maximumIncrease: 5
+  startTime: 2026-04-20T00:00:00+00:00
+  endTime: 2026-05-01T17:00:00+00:00
