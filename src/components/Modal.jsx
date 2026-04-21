@@ -596,7 +596,7 @@ const WelcomeModal = () => {
   );
 };
 
-const buildVenmoUrl = (username, amount, note) => {
+const buildVenmoWebUrl = (username, amount, note) => {
   const params = new URLSearchParams({
     txn: "pay",
     recipients: username,
@@ -604,6 +604,37 @@ const buildVenmoUrl = (username, amount, note) => {
   });
   if (note) params.set("note", note);
   return `https://venmo.com/?${params.toString()}`;
+};
+
+const buildVenmoAppUrl = (username, amount, note) => {
+  const params = new URLSearchParams({
+    txn: "pay",
+    recipients: username,
+    amount: amount.toFixed(2),
+  });
+  if (note) params.set("note", note);
+  return `venmo://paycharge?${params.toString()}`;
+};
+
+const launchVenmo = (username, amount, note) => {
+  const appUrl = buildVenmoAppUrl(username, amount, note);
+  const webUrl = buildVenmoWebUrl(username, amount, note);
+  const start = Date.now();
+  let fallbackTimer;
+  const onVisibilityChange = () => {
+    if (document.visibilityState === "hidden") {
+      clearTimeout(fallbackTimer);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    }
+  };
+  document.addEventListener("visibilitychange", onVisibilityChange);
+  fallbackTimer = setTimeout(() => {
+    document.removeEventListener("visibilitychange", onVisibilityChange);
+    if (document.visibilityState === "visible" && Date.now() - start < 2500) {
+      window.location.href = webUrl;
+    }
+  }, 1200);
+  window.location.href = appUrl;
 };
 
 const DonationModal = () => {
@@ -637,6 +668,12 @@ const DonationModal = () => {
   const username = activeItem.venmoUsername;
   const note = activeItem.venmoNote || "";
 
+  const handlePresetClick = (e, amount) => {
+    e.preventDefault();
+    if (!username) return;
+    launchVenmo(username, amount, note);
+  };
+
   const handleCustomDonate = () => {
     if (!username) {
       setFeedback("Venmo recipient is not configured.");
@@ -654,7 +691,7 @@ const DonationModal = () => {
       setValid("is-invalid");
       return;
     }
-    window.location.assign(buildVenmoUrl(username, parsed, note));
+    launchVenmo(username, parsed, note);
   };
 
   const handleChange = (e) => {
@@ -683,7 +720,8 @@ const DonationModal = () => {
           {presets.map((preset) => (
             <a
               key={preset}
-              href={username ? buildVenmoUrl(username, preset, note) : "#"}
+              href={username ? buildVenmoWebUrl(username, preset, note) : "#"}
+              onClick={(e) => handlePresetClick(e, preset)}
               className="btn btn-outline-primary flex-grow-1"
               style={{ minWidth: "5rem" }}
             >
