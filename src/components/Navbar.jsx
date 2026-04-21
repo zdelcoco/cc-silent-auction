@@ -8,7 +8,7 @@ import { ItemsContext } from '../contexts/ItemsContext';
 import { ModalTypes } from '../utils/modalTypes';
 import { formatTime } from '../utils/formatString';
 
-const Countdown = () => {
+const Countdown = ({ mobileSolo }) => {
   const { items } = useContext(ItemsContext);
   const [label, setLabel] = useState('');
 
@@ -37,10 +37,21 @@ const Countdown = () => {
 
   if (!label) return null;
   return (
-    <div className='navbar-brand mb-0 text-nowrap position-absolute start-50 translate-middle-x'>
-      {label}
-    </div>
+    <>
+      <div className='navbar-brand mb-0 text-nowrap d-none d-md-block position-absolute start-50 translate-middle-x'>
+        {label}
+      </div>
+      <div
+        className={`navbar-brand mb-0 text-nowrap text-center w-100 order-last d-md-none ${mobileSolo ? '' : 'mt-2'}`}
+      >
+        {label}
+      </div>
+    </>
   );
+};
+
+Countdown.propTypes = {
+  mobileSolo: PropTypes.bool,
 };
 
 const Navbar = ({ admin }) => {
@@ -49,7 +60,15 @@ const Navbar = ({ admin }) => {
   const [user, setUser] = useState('');
   const [authButtonText, setAuthButtonText] = useState('Sign up');
   const [adminButtonText, setAdminButtonText] = useState('Admin');
+  const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -92,12 +111,16 @@ const Navbar = ({ admin }) => {
   return (
     <nav className='navbar navbar-dark bg-primary sticky-top'>
       <div className='container-fluid position-relative'>
-        <div className='navbar-brand mb-0 h1 me-auto'>
+        <div
+          className={`navbar-brand mb-0 h1 ${scrolled ? 'd-none d-md-block' : ''}`}
+        >
           Memphis Central CC Silent Auction
         </div>
-        <Countdown />
-        <div className='row row-cols-auto'>
-          <div className='navbar-brand'>{user}</div>
+        <Countdown mobileSolo={scrolled} />
+        <div
+          className={`align-items-center ms-auto ${scrolled ? 'd-none d-md-flex' : 'd-flex'}`}
+        >
+          <div className='navbar-brand me-2'>{user}</div>
           {admin && (
             <button onClick={handleAdmin} className='btn btn-secondary me-2'>
               {adminButtonText}

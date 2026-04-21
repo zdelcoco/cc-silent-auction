@@ -51,6 +51,7 @@ const ItemModal = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [lastBidder, setLastBidder] = useState("");
+  const [pendingAction, setPendingAction] = useState(null);
   const [, setTick] = useState(0);
 
   const minIncrease = activeItem.minimumIncrease || 1;
@@ -96,6 +97,7 @@ const ItemModal = () => {
     setFeedback("");
     setValid("");
     setBid("");
+    setPendingAction(null);
     const winnerUid = activeItem.endTime ? itemStatus(activeItem).winner : "";
     if (winnerUid) {
       let cancelled = false;
@@ -121,12 +123,8 @@ const ItemModal = () => {
     }, 1000);
   };
 
-  const submitBid = (amount) => {
-    // Get bid submission time as early as possible
-    let nowTime = new Date().getTime();
-    // Disable bid submission while we submit the current request
-    setIsSubmitting(true);
-    // Ensure item has not already ended
+  const executeBid = (amount) => {
+    const nowTime = new Date().getTime();
     if (activeItem.endTime - nowTime < 0) {
       setFeedback("Sorry, this item has ended!");
       setValid("is-invalid");
@@ -134,7 +132,71 @@ const ItemModal = () => {
       setIsSubmitting(false);
       return;
     }
-    // Ensure user has provided a username
+    const status = itemStatus(activeItem);
+    const currentMin = status.amount + minIncrease;
+    const currentMax = status.amount + maxIncrease;
+    if (amount < currentMin) {
+      setFeedback(`Minimum bid is ${formatMoney(activeItem.currency, currentMin)}`);
+      setValid("is-invalid");
+      setIsSubmitting(false);
+      return;
+    }
+    if (amount > currentMax) {
+      setFeedback(`Maximum bid is ${formatMoney(activeItem.currency, currentMax)}`);
+      setValid("is-invalid");
+      setIsSubmitting(false);
+      return;
+    }
+    updateDoc(doc(db, "auction", "items"), {
+      [formatField(activeItem.id, status.bids + 1)]: {
+        amount,
+        uid: auth.currentUser.uid,
+      },
+    });
+    console.debug("submitBid() write to auction/items");
+    setValid("is-valid");
+    delayedClose();
+  };
+
+  const executeBuyItNow = () => {
+    const nowTime = new Date().getTime();
+    if (activeItem.endTime - nowTime < 0) {
+      setFeedback("Sorry, this item has ended!");
+      setValid("is-invalid");
+      delayedClose();
+      setIsSubmitting(false);
+      return;
+    }
+    const price = activeItem.buyItNow;
+    const status = itemStatus(activeItem);
+    if (status.amount >= price) {
+      setFeedback("Current bid has already exceeded the buy-it-now price.");
+      setValid("is-invalid");
+      setIsSubmitting(false);
+      return;
+    }
+    updateDoc(doc(db, "auction", "items"), {
+      [formatField(activeItem.id, status.bids + 1)]: {
+        amount: price,
+        uid: auth.currentUser.uid,
+      },
+      [`${formatField(activeItem.id, 0)}.endTime`]: Timestamp.now(),
+    });
+    console.debug("handleBuyItNow() write to auction/items");
+    setValid("is-valid");
+    delayedClose();
+  };
+
+  const submitBid = (amount) => {
+    const nowTime = new Date().getTime();
+    setIsSubmitting(true);
+    if (activeItem.endTime - nowTime < 0) {
+      setFeedback("Sorry, this item has ended!");
+      setValid("is-invalid");
+      delayedClose();
+      setIsSubmitting(false);
+      return;
+    }
     if (auth.currentUser.displayName == null) {
       setFeedback("You must provide a username before bidding!");
       setValid("is-invalid");
@@ -145,25 +207,21 @@ const ItemModal = () => {
       }, 1000)
       return;
     }
-    // Get current status for validation
     const status = itemStatus(activeItem);
     const currentMin = status.amount + minIncrease;
     const currentMax = status.amount + maxIncrease;
-    // Ensure input is large enough
     if (amount < currentMin) {
       setFeedback(`Minimum bid is ${formatMoney(activeItem.currency, currentMin)}`);
       setValid("is-invalid");
       setIsSubmitting(false);
       return;
     }
-    // Ensure input is small enough
     if (amount > currentMax) {
       setFeedback(`Maximum bid is ${formatMoney(activeItem.currency, currentMax)}`);
       setValid("is-invalid");
       setIsSubmitting(false);
       return;
     }
-    // Ensure bid is in correct increment
     const increase = amount - status.amount;
     if (increase % minIncrease !== 0) {
       setFeedback(`Bid must be in increments of ${formatMoney(activeItem.currency, minIncrease)}`);
@@ -171,16 +229,7 @@ const ItemModal = () => {
       setIsSubmitting(false);
       return;
     }
-    // Finally, place bid
-    updateDoc(doc(db, "auction", "items"), {
-      [formatField(activeItem.id, status.bids + 1)]: {
-        amount,
-        uid: auth.currentUser.uid,
-      },
-    });
-    console.debug("submitBid() write to auction/items");
-    setValid("is-valid");
-    delayedClose();
+    setPendingAction({ type: "bid", amount });
   };
 
   const handleBuyItNow = () => {
@@ -203,28 +252,23 @@ const ItemModal = () => {
       }, 1000);
       return;
     }
-    const price = activeItem.buyItNow;
-    if (!confirm(`Buy this item now for ${formatMoney(activeItem.currency, price)}? This will end the auction immediately.`)) {
-      setIsSubmitting(false);
-      return;
+    setPendingAction({ type: "buyNow", amount: activeItem.buyItNow });
+  };
+
+  const handleConfirmAction = () => {
+    if (!pendingAction) return;
+    const action = pendingAction;
+    setPendingAction(null);
+    if (action.type === "buyNow") {
+      executeBuyItNow();
+    } else {
+      executeBid(action.amount);
     }
-    const status = itemStatus(activeItem);
-    if (status.amount >= price) {
-      setFeedback("Current bid has already exceeded the buy-it-now price.");
-      setValid("is-invalid");
-      setIsSubmitting(false);
-      return;
-    }
-    updateDoc(doc(db, "auction", "items"), {
-      [formatField(activeItem.id, status.bids + 1)]: {
-        amount: price,
-        uid: auth.currentUser.uid,
-      },
-      [`${formatField(activeItem.id, 0)}.endTime`]: Timestamp.now(),
-    });
-    console.debug("handleBuyItNow() write to auction/items");
-    setValid("is-valid");
-    delayedClose();
+  };
+
+  const handleCancelAction = () => {
+    setPendingAction(null);
+    setIsSubmitting(false);
   };
 
   const handleSubmitBid = () => {
@@ -263,7 +307,43 @@ const ItemModal = () => {
         <p className="mt-3">{activeItem.detail}</p>
       </div>
       <div className="modal-footer flex-column align-items-stretch">
-        {isPreview ? (
+        {pendingAction ? (
+          <div className="text-center py-2">
+            <p className="mb-3">
+              {pendingAction.type === "buyNow" ? (
+                <>
+                  Buy <strong>{activeItem.title}</strong> now for{" "}
+                  <strong>{formatMoney(activeItem.currency, pendingAction.amount)}</strong>?
+                  <br />
+                  <small className="text-muted">This will end the auction immediately.</small>
+                </>
+              ) : (
+                <>
+                  Place a bid of{" "}
+                  <strong>{formatMoney(activeItem.currency, pendingAction.amount)}</strong> on{" "}
+                  <strong>{activeItem.title}</strong>?
+                </>
+              )}
+            </p>
+            <div className="d-flex gap-2">
+              <button
+                type="button"
+                className="btn btn-outline-secondary flex-grow-1"
+                onClick={handleCancelAction}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className={`btn flex-grow-1 ${pendingAction.type === "buyNow" ? "btn-success" : "btn-primary"}`}
+                onClick={handleConfirmAction}
+                autoFocus
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        ) : isPreview ? (
           <div className="text-center py-3">
             <p className="mb-2"><strong>Preview</strong></p>
             <p className="mb-0">Bidding opens <strong>{activeItem.startTime.toLocaleString()}</strong></p>
