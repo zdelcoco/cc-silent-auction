@@ -26,3 +26,11 @@ html * {
   transition: filter 0.2s ease;
   display: block;
 }
+
+body.modal-active {
+  overflow: hidden;
+}
+
+body.modal-active #root {
+  filter: blur(12px);
+}

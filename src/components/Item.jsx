@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import PropTypes from "prop-types";
 import { itemStatus } from "../utils/itemStatus";
-import { formatTime, formatMoney } from "../utils/formatString";
+import { formatMoney } from "../utils/formatString";
 import { ModalsContext } from "../contexts/ModalsContext";
 import { ModalTypes } from "../utils/modalTypes";
 import { getDoc, doc } from "firebase/firestore";
@@ -13,11 +13,11 @@ export const Item = ({ item }) => {
   const [primaryImageSrc, setPrimaryImageSrc] = useState("");
   const [bids, setBids] = useState(0);
   const [amount, setAmount] = useState(item.startingPrice);
-  const [timeLeft, setTimeLeft] = useState("");
   const [winner, setWinner] = useState("");
   const [preview, setPreview] = useState(
     !!(item.startTime && Date.now() < item.startTime.getTime())
   );
+  const [ended, setEnded] = useState(Date.now() >= item.endTime.getTime());
 
   useEffect(() => {
     const status = itemStatus(item);
@@ -33,27 +33,25 @@ export const Item = ({ item }) => {
   }, [item]);
 
   useEffect(() => {
-    const updateTimer = () => {
-      const now = Date.now();
-      const isPreview = !!(item.startTime && now < item.startTime.getTime());
-      setPreview(isPreview);
-
-      if (isPreview) {
-        setTimeLeft(formatTime(item.startTime - now));
-        requestAnimationFrame(updateTimer);
-        return;
-      }
-
-      const remaining = item.endTime - now;
-      if (remaining > 0) {
-        setTimeLeft(formatTime(remaining));
-        requestAnimationFrame(updateTimer);
-      } else {
-        setTimeLeft("Item Ended");
-      }
-    };
-
-    requestAnimationFrame(updateTimer);
+    const timers = [];
+    const now = Date.now();
+    if (item.startTime && now < item.startTime.getTime()) {
+      setPreview(true);
+      timers.push(
+        setTimeout(() => setPreview(false), item.startTime.getTime() - now)
+      );
+    } else {
+      setPreview(false);
+    }
+    if (now < item.endTime.getTime()) {
+      setEnded(false);
+      timers.push(
+        setTimeout(() => setEnded(true), item.endTime.getTime() - now)
+      );
+    } else {
+      setEnded(true);
+    }
+    return () => timers.forEach(clearTimeout);
   }, [item.endTime, item.startTime]);
 
   useEffect(() => {
@@ -67,13 +65,15 @@ export const Item = ({ item }) => {
     openModal(ModalTypes.ITEM, item);
   };
 
+  const imgBlurred = preview || ended;
+
   return (
     <div className="col">
       <div className={`card h-100${preview ? " preview" : ""}`} onClick={handleClick}>
-        <div className={preview ? "preview-img-wrap" : ""}>
+        <div className={imgBlurred ? "preview-img-wrap" : ""}>
           <img
             src={primaryImageSrc}
-            className={`card-img-top${preview ? " preview-blur" : ""}`}
+            className={`card-img-top${imgBlurred ? " preview-blur" : ""}`}
             alt={item.title}
           />
         </div>
@@ -83,19 +83,22 @@ export const Item = ({ item }) => {
         </div>
         <ul className="list-group list-group-flush">
           {preview ? (
-            <>
-              <li className="list-group-item">
-                <strong>Check back in when bidding begins!</strong>
-              </li>
-              <li className="list-group-item">Starts in {timeLeft}</li>
-            </>
+            <li className="list-group-item">
+              <strong>Check back in when bidding begins!</strong>
+            </li>
           ) : (
             <>
               <li className="list-group-item d-flex justify-content-between align-items-center">
                 <strong>{amount}</strong>
-                {winner && <small className="text-muted">Leading: {winner}</small>}
+                {winner && (
+                  <small className="text-muted">
+                    {ended ? "Winner" : "Leading"}: {winner}
+                  </small>
+                )}
               </li>
-              <li className="list-group-item">{bids} bids · {timeLeft}</li>
+              <li className="list-group-item">
+                {ended ? "Auction ended" : `${bids} bids`}
+              </li>
             </>
           )}
         </ul>

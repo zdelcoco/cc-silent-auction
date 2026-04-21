@@ -87,12 +87,12 @@
   primaryImage: frost_bake_shop
   title: Frost Bake Shop Gift Card
   subtitle: Buy-it-now option available!
-  detail: "Buy-it-now option: $45"
   secondaryImage: frost_bake_shop
   currency: $
   amount: 25
   minimumIncrease: 1
   maximumIncrease: 5
+  buyItNow: 45
   startTime: 2026-04-20T00:00:00+00:00
   endTime: 2026-05-01T17:00:00+00:00
 
@@ -123,12 +123,12 @@
   primaryImage: memphis_pizza_cafe_gc
   title: Memphis Pizza Cafe Gift Card
   subtitle: Buy-it-now option available!
-  detail: "Buy-it-now option: $35"
   secondaryImage: memphis_pizza_cafe_gc
   currency: $
   amount: 15
   minimumIncrease: 1
   maximumIncrease: 5
+  buyItNow: 35
   startTime: 2026-04-20T00:00:00+00:00
   endTime: 2026-05-01T17:00:00+00:00
 

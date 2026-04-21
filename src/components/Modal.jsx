@@ -4,7 +4,7 @@ import ReactDOM from "react-dom";
 import { itemStatus } from "../utils/itemStatus";
 import { formatField, formatMoney } from "../utils/formatString";
 import { updateProfile } from "firebase/auth";
-import { doc, setDoc, updateDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc, updateDoc, getDoc, Timestamp } from "firebase/firestore";
 import { auth, db } from "../firebase/config";
 import { ModalsContext } from "../contexts/ModalsContext";
 import { ModalTypes } from "../utils/modalTypes";
@@ -50,55 +50,63 @@ const ItemModal = () => {
   const [valid, setValid] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState("");
-  const [currentAmount, setCurrentAmount] = useState(0);
   const [lastBidder, setLastBidder] = useState("");
-  const [numBids, setNumBids] = useState(0);
-  const [isEnded, setIsEnded] = useState(false);
-  const [isPreview, setIsPreview] = useState(false);
+  const [, setTick] = useState(0);
 
   const minIncrease = activeItem.minimumIncrease || 1;
   const maxIncrease = activeItem.maximumIncrease || 10;
 
+  const status = activeItem.endTime
+    ? itemStatus(activeItem)
+    : { amount: 0, bids: 0, winner: "" };
+  const currentAmount = status.amount;
+  const now = Date.now();
+  const isPreview = !!(activeItem.startTime && now < activeItem.startTime.getTime());
+  const isEnded = !!(activeItem.endTime && now >= activeItem.endTime.getTime());
+
   useEffect(() => {
     if (!activeItem.endTime) return;
-    const checkEnded = () => {
-      const now = Date.now();
-      if (activeItem.startTime && now < activeItem.startTime.getTime()) {
-        setIsPreview(true);
-        setIsEnded(false);
-        requestAnimationFrame(checkEnded);
-        return;
-      }
-      setIsPreview(false);
-      const remaining = activeItem.endTime - now;
-      if (remaining <= 0) {
-        setIsEnded(true);
-      } else {
-        setIsEnded(false);
-        requestAnimationFrame(checkEnded);
-      }
-    };
-    checkEnded();
+    const timers = [];
+    const nowMs = Date.now();
+    const startMs = activeItem.startTime ? activeItem.startTime.getTime() : null;
+    const endMs = activeItem.endTime.getTime();
+    if (startMs && nowMs < startMs) {
+      timers.push(setTimeout(() => setTick((t) => t + 1), startMs - nowMs));
+    }
+    if (nowMs < endMs) {
+      timers.push(setTimeout(() => setTick((t) => t + 1), endMs - nowMs));
+    }
+    return () => timers.forEach(clearTimeout);
   }, [activeItem.endTime, activeItem.startTime]);
 
   useEffect(() => {
+    setSecondaryImageSrc("");
     if (activeItem.secondaryImage === undefined) return;
+    let cancelled = false;
     import(`../assets/${activeItem.secondaryImage}.jpg`).then((src) => {
-      setSecondaryImageSrc(src.default)
-    })
-  }, [activeItem.secondaryImage])
+      if (!cancelled) setSecondaryImageSrc(src.default);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [activeItem.secondaryImage]);
 
   useEffect(() => {
-    const status = itemStatus(activeItem);
-    setCurrentAmount(status.amount);
-    setNumBids(status.bids);
-    if (status.winner) {
-      getDoc(doc(db, "users", status.winner)).then((user) => {
-        setLastBidder(user.get("name"));
+    setIsSubmitting(false);
+    setFeedback("");
+    setValid("");
+    setBid("");
+    const winnerUid = activeItem.endTime ? itemStatus(activeItem).winner : "";
+    if (winnerUid) {
+      let cancelled = false;
+      getDoc(doc(db, "users", winnerUid)).then((user) => {
+        if (!cancelled) setLastBidder(user.get("name"));
       });
-    } else {
-      setLastBidder("");
+      return () => {
+        cancelled = true;
+      };
     }
+    setLastBidder("");
   }, [activeItem]);
 
   const minBidAmount = currentAmount + minIncrease;
@@ -171,6 +179,50 @@ const ItemModal = () => {
       },
     });
     console.debug("submitBid() write to auction/items");
+    setValid("is-valid");
+    delayedClose();
+  };
+
+  const handleBuyItNow = () => {
+    const nowTime = new Date().getTime();
+    setIsSubmitting(true);
+    if (activeItem.endTime - nowTime < 0) {
+      setFeedback("Sorry, this item has ended!");
+      setValid("is-invalid");
+      delayedClose();
+      setIsSubmitting(false);
+      return;
+    }
+    if (auth.currentUser.displayName == null) {
+      setFeedback("You must provide a username before bidding!");
+      setValid("is-invalid");
+      setTimeout(() => {
+        openModal(ModalTypes.SIGN_UP);
+        setIsSubmitting(false);
+        setValid("");
+      }, 1000);
+      return;
+    }
+    const price = activeItem.buyItNow;
+    if (!confirm(`Buy this item now for ${formatMoney(activeItem.currency, price)}? This will end the auction immediately.`)) {
+      setIsSubmitting(false);
+      return;
+    }
+    const status = itemStatus(activeItem);
+    if (status.amount >= price) {
+      setFeedback("Current bid has already exceeded the buy-it-now price.");
+      setValid("is-invalid");
+      setIsSubmitting(false);
+      return;
+    }
+    updateDoc(doc(db, "auction", "items"), {
+      [formatField(activeItem.id, status.bids + 1)]: {
+        amount: price,
+        uid: auth.currentUser.uid,
+      },
+      [`${formatField(activeItem.id, 0)}.endTime`]: Timestamp.now(),
+    });
+    console.debug("handleBuyItNow() write to auction/items");
     setValid("is-valid");
     delayedClose();
   };
@@ -253,6 +305,16 @@ const ItemModal = () => {
                 Max Bid - {formatMoney(activeItem.currency, maxBidAmount)}
               </button>
             </div>
+            {activeItem.buyItNow && currentAmount < activeItem.buyItNow && (
+              <button
+                type="button"
+                className="btn btn-success w-100 mb-3"
+                onClick={handleBuyItNow}
+                disabled={isSubmitting}
+              >
+                Buy It Now - {formatMoney(activeItem.currency, activeItem.buyItNow)}
+              </button>
+            )}
             <div className="input-group mb-2">
               <span className="input-group-text">{activeItem.currency}</span>
               <input
