@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import PropTypes from "prop-types";
 import ReactDOM from "react-dom";
 import { itemStatus } from "../utils/itemStatus";
@@ -611,6 +611,7 @@ const DonationModal = () => {
   const [customAmount, setCustomAmount] = useState("");
   const [valid, setValid] = useState("");
   const [feedback, setFeedback] = useState("");
+  const customAnchorRef = useRef(null);
 
   useEffect(() => {
     if (currentModal === ModalTypes.DONATION) {
@@ -637,18 +638,12 @@ const DonationModal = () => {
   const username = activeItem.venmoUsername;
   const note = activeItem.venmoNote || "";
 
-  const launchVenmo = (amount) => {
+  const handleCustomDonate = () => {
     if (!username) {
       setFeedback("Venmo recipient is not configured.");
       setValid("is-invalid");
       return;
     }
-    const url = buildVenmoUrl(username, amount, note);
-    window.open(url, "_blank", "noopener,noreferrer");
-    closeModal();
-  };
-
-  const handleCustomDonate = () => {
     if (!/^\d+(\.\d{1,2})?$/.test(customAmount)) {
       setFeedback("Please enter a valid amount.");
       setValid("is-invalid");
@@ -660,7 +655,12 @@ const DonationModal = () => {
       setValid("is-invalid");
       return;
     }
-    launchVenmo(parsed);
+    const anchor = customAnchorRef.current;
+    if (anchor) {
+      anchor.href = buildVenmoUrl(username, parsed, note);
+      anchor.click();
+      closeModal();
+    }
   };
 
   const handleChange = (e) => {
@@ -687,15 +687,17 @@ const DonationModal = () => {
         </p>
         <div className="d-flex flex-wrap gap-2 mb-3">
           {presets.map((preset) => (
-            <button
+            <a
               key={preset}
-              type="button"
+              href={username ? buildVenmoUrl(username, preset, note) : "#"}
+              target="_blank"
+              rel="noopener noreferrer"
               className="btn btn-outline-primary flex-grow-1"
-              onClick={() => launchVenmo(preset)}
+              onClick={closeModal}
               style={{ minWidth: "5rem" }}
             >
               {formatMoney(activeItem.currency || "$", preset)}
-            </button>
+            </a>
           ))}
         </div>
         <div className="input-group mb-2">
@@ -719,6 +721,17 @@ const DonationModal = () => {
         <small className="text-muted text-center">
           You&rsquo;ll be redirected to Venmo to complete your donation.
         </small>
+        <a
+          ref={customAnchorRef}
+          href="#"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ display: "none" }}
+          aria-hidden="true"
+          tabIndex={-1}
+        >
+          Venmo
+        </a>
       </div>
     </Modal>
   );
