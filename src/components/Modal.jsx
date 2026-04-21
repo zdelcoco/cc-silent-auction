@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import PropTypes from "prop-types";
 import ReactDOM from "react-dom";
 import { itemStatus } from "../utils/itemStatus";
@@ -607,11 +607,10 @@ const buildVenmoUrl = (username, amount, note) => {
 };
 
 const DonationModal = () => {
-  const { activeItem, closeModal, currentModal } = useContext(ModalsContext);
+  const { activeItem, currentModal } = useContext(ModalsContext);
   const [customAmount, setCustomAmount] = useState("");
   const [valid, setValid] = useState("");
   const [feedback, setFeedback] = useState("");
-  const customAnchorRef = useRef(null);
 
   useEffect(() => {
     if (currentModal === ModalTypes.DONATION) {
@@ -655,12 +654,7 @@ const DonationModal = () => {
       setValid("is-invalid");
       return;
     }
-    const anchor = customAnchorRef.current;
-    if (anchor) {
-      anchor.href = buildVenmoUrl(username, parsed, note);
-      anchor.click();
-      closeModal();
-    }
+    window.location.assign(buildVenmoUrl(username, parsed, note));
   };
 
   const handleChange = (e) => {
@@ -690,10 +684,7 @@ const DonationModal = () => {
             <a
               key={preset}
               href={username ? buildVenmoUrl(username, preset, note) : "#"}
-              target="_blank"
-              rel="noopener noreferrer"
               className="btn btn-outline-primary flex-grow-1"
-              onClick={closeModal}
               style={{ minWidth: "5rem" }}
             >
               {formatMoney(activeItem.currency || "$", preset)}
@@ -721,17 +712,6 @@ const DonationModal = () => {
         <small className="text-muted text-center">
           You&rsquo;ll be redirected to Venmo to complete your donation.
         </small>
-        <a
-          ref={customAnchorRef}
-          href="#"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ display: "none" }}
-          aria-hidden="true"
-          tabIndex={-1}
-        >
-          Venmo
-        </a>
       </div>
     </Modal>
   );
