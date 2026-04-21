@@ -84,7 +84,7 @@ const ItemModal = () => {
     setSecondaryImageSrc("");
     if (activeItem.secondaryImage === undefined) return;
     let cancelled = false;
-    import(`../assets/${activeItem.secondaryImage}.jpg`).then((src) => {
+    import(`../assets/${activeItem.secondaryImage}.webp`).then((src) => {
       if (!cancelled) setSecondaryImageSrc(src.default);
     });
     return () => {
