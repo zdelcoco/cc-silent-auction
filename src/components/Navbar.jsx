@@ -8,7 +8,7 @@ import { ItemsContext } from '../contexts/ItemsContext';
 import { ModalTypes } from '../utils/modalTypes';
 import { formatTime } from '../utils/formatString';
 
-const Countdown = ({ mobileSolo }) => {
+const Countdown = ({ scrolled }) => {
   const { items } = useContext(ItemsContext);
   const [label, setLabel] = useState('');
 
@@ -41,17 +41,21 @@ const Countdown = ({ mobileSolo }) => {
       <div className='navbar-brand mb-0 text-nowrap d-none d-md-block position-absolute start-50 translate-middle-x'>
         {label}
       </div>
-      <div
-        className={`navbar-brand mb-0 text-nowrap text-center w-100 order-last d-md-none ${mobileSolo ? '' : 'mt-2'}`}
-      >
-        {label}
-      </div>
+      {scrolled ? (
+        <div className='navbar-brand mb-0 text-nowrap d-md-none'>
+          {label}
+        </div>
+      ) : (
+        <div className='navbar-brand mb-0 text-nowrap text-center w-100 order-last d-md-none mt-2'>
+          {label}
+        </div>
+      )}
     </>
   );
 };
 
 Countdown.propTypes = {
-  mobileSolo: PropTypes.bool,
+  scrolled: PropTypes.bool,
 };
 
 const Navbar = ({ admin }) => {
@@ -61,6 +65,7 @@ const Navbar = ({ admin }) => {
   const [authButtonText, setAuthButtonText] = useState('Sign up');
   const [adminButtonText, setAdminButtonText] = useState('Admin');
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -78,7 +83,6 @@ const Navbar = ({ admin }) => {
       }
     });
 
-    // Clean up the onAuthStateChanged listener when the component unmounts
     return () => unsubscribe();
   }, []);
 
@@ -90,6 +94,7 @@ const Navbar = ({ admin }) => {
   }, [signedInUser]);
 
   const handleAdmin = () => {
+    setMenuOpen(false);
     if (location.pathname.includes('admin')) {
       navigate(import.meta.env.BASE_URL);
       setAdminButtonText('Admin');
@@ -100,6 +105,7 @@ const Navbar = ({ admin }) => {
   };
 
   const handleAuth = () => {
+    setMenuOpen(false);
     if (user) {
       setUser('');
       setAuthButtonText('Sign up');
@@ -108,18 +114,27 @@ const Navbar = ({ admin }) => {
     }
   };
 
+  const handleInfo = () => {
+    setMenuOpen(false);
+    openModal(ModalTypes.WELCOME);
+  };
+
   return (
     <nav className='navbar navbar-dark bg-primary sticky-top'>
       <div className='container-fluid position-relative'>
-        <div
-          className={`navbar-brand mb-0 h1 ${scrolled ? 'd-none d-md-block' : ''}`}
-        >
+        <div className='navbar-brand mb-0 h1 d-none d-md-block'>
           Memphis Central CC Silent Auction
         </div>
-        <Countdown mobileSolo={scrolled} />
-        <div
-          className={`align-items-center flex-wrap justify-content-end gap-2 ms-auto ${scrolled ? 'd-none d-md-flex' : 'd-flex'}`}
-        >
+
+        {!scrolled && (
+          <div className='navbar-brand mb-0 h1 d-md-none'>
+            CC Silent Auction
+          </div>
+        )}
+
+        <Countdown scrolled={scrolled} />
+
+        <div className='d-none d-md-flex align-items-center flex-wrap justify-content-end gap-2 ms-auto'>
           {user && (
             <div className='navbar-brand mb-0 me-0 text-truncate' style={{ maxWidth: '40vw' }}>
               {user}
@@ -131,7 +146,7 @@ const Navbar = ({ admin }) => {
             </button>
           )}
           <button
-            onClick={() => openModal(ModalTypes.WELCOME)}
+            onClick={handleInfo}
             className='btn btn-secondary'
             title='Auction info'
             aria-label='Auction info'
@@ -142,6 +157,36 @@ const Navbar = ({ admin }) => {
             {authButtonText}
           </button>
         </div>
+
+        <button
+          className='navbar-toggler d-md-none ms-auto border-0 shadow-none'
+          type='button'
+          onClick={() => setMenuOpen((o) => !o)}
+          aria-expanded={menuOpen}
+          aria-label='Toggle menu'
+        >
+          <span className='navbar-toggler-icon'></span>
+        </button>
+
+        {menuOpen && (
+          <div className='d-md-none w-100 mt-3 pt-3 border-top border-light-subtle' style={{ order: 100 }}>
+            <div className='navbar-brand mb-2 d-block'>Memphis Central CC</div>
+            {user && <div className='text-light mb-3'>{user}</div>}
+            <div className='d-grid gap-2'>
+              {admin && (
+                <button onClick={handleAdmin} className='btn btn-secondary'>
+                  {adminButtonText}
+                </button>
+              )}
+              <button onClick={handleInfo} className='btn btn-secondary'>
+                Info
+              </button>
+              <button onClick={handleAuth} className='btn btn-secondary'>
+                {authButtonText}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );
