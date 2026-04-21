@@ -197,11 +197,11 @@ const ItemModal = () => {
       setIsSubmitting(false);
       return;
     }
-    if (auth.currentUser.displayName == null) {
+    if (!auth.currentUser || auth.currentUser.displayName == null) {
       setFeedback("You must provide a username before bidding!");
       setValid("is-invalid");
       setTimeout(() => {
-        openModal(ModalTypes.SIGN_UP);
+        openModal(ModalTypes.SIGN_UP, activeItem);
         setIsSubmitting(false);
         setValid("");
       }, 1000)
@@ -242,11 +242,11 @@ const ItemModal = () => {
       setIsSubmitting(false);
       return;
     }
-    if (auth.currentUser.displayName == null) {
+    if (!auth.currentUser || auth.currentUser.displayName == null) {
       setFeedback("You must provide a username before bidding!");
       setValid("is-invalid");
       setTimeout(() => {
-        openModal(ModalTypes.SIGN_UP);
+        openModal(ModalTypes.SIGN_UP, activeItem);
         setIsSubmitting(false);
         setValid("");
       }, 1000);
@@ -422,12 +422,22 @@ const ItemModal = () => {
 };
 
 const SignUpModal = () => {
-  const { closeModal, setSignedInUser } = useContext(ModalsContext);
+  const { closeModal, setSignedInUser, activeItem, openModal, currentModal } = useContext(ModalsContext);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [valid, setValid] = useState("");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (currentModal === ModalTypes.SIGN_UP) {
+      setFullName("");
+      setEmail("");
+      setPhone("");
+      setValid("");
+      setError("");
+    }
+  }, [currentModal]);
 
   const handleSignUp = async () => {
     // Validate required fields
@@ -452,8 +462,13 @@ const SignUpModal = () => {
     setSignedInUser(fullName);
     setValid("is-valid");
     setError("");
+    const returnItem = activeItem && activeItem.id !== undefined ? activeItem : null;
     setTimeout(() => {
-      closeModal();
+      if (returnItem) {
+        openModal(ModalTypes.ITEM, returnItem);
+      } else {
+        closeModal();
+      }
       setValid("");
     }, 1000);
   };

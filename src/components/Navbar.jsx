@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate, useLocation } from 'react-router';
 import { auth } from '../firebase/config';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { ModalsContext } from '../contexts/ModalsContext';
 import { ItemsContext } from '../contexts/ItemsContext';
 import { ModalTypes } from '../utils/modalTypes';
@@ -59,7 +59,7 @@ Countdown.propTypes = {
 };
 
 const Navbar = ({ admin }) => {
-  const { openModal, signedInUser } = useContext(ModalsContext);
+  const { openModal, signedInUser, setSignedInUser } = useContext(ModalsContext);
   const navigate = useNavigate();
   const [user, setUser] = useState('');
   const [authButtonText, setAuthButtonText] = useState('Sign up');
@@ -104,11 +104,13 @@ const Navbar = ({ admin }) => {
     }
   };
 
-  const handleAuth = () => {
+  const handleAuth = async () => {
     setMenuOpen(false);
     if (user) {
       setUser('');
       setAuthButtonText('Sign up');
+      setSignedInUser(null);
+      await signOut(auth);
     } else {
       openModal(ModalTypes.SIGN_UP);
     }

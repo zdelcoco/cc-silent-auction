@@ -9,24 +9,26 @@ export const AutoSignIn = () => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user && user.displayName) {
-        console.debug(`Signed-in: name=${user.displayName}, uid=${user.uid}`);
-        setUser(user);
-
-        // Check if user is admin
-        const userDocRef = doc(db, "users", user.uid);
-        getDoc(userDocRef).then((docSnap) => {
-          if (docSnap.exists() && docSnap.data().admin) {
-            console.debug("User is admin");
-            setAdmin(true);
-          }
-        });
-      } else {
+      if (!user) {
+        setUser(null);
+        setAdmin(false);
         signInAnonymously(auth);
+        return;
       }
+      if (!user.displayName) {
+        setUser(null);
+        setAdmin(false);
+        return;
+      }
+      console.debug(`Signed-in: name=${user.displayName}, uid=${user.uid}`);
+      setUser(user);
+      getDoc(doc(db, "users", user.uid)).then((docSnap) => {
+        const isAdmin = docSnap.exists() && !!docSnap.data().admin;
+        if (isAdmin) console.debug("User is admin");
+        setAdmin(isAdmin);
+      });
     });
 
-    // Clean up the onAuthStateChanged listener when the component unmounts
     return () => unsubscribe();
   }, []);
 
