@@ -62,21 +62,21 @@ function AdminPage() {
 
   return (
     <div className="container mt-3">
-      <div className="d-flex justify-content-left mb-3">
+      <div className="d-flex flex-column flex-md-row gap-2 mb-3">
         <button
-          className="btn btn-danger me-3"
+          className="btn btn-danger"
           onClick={() => editItems(undefined, true, false)}
         >
           Update all items
         </button>
         <button
-          className="btn btn-danger me-3"
+          className="btn btn-danger"
           onClick={() => editItems(undefined, false, true)}
         >
           Delete all bids
         </button>
         <button
-          className="btn btn-success me-3"
+          className="btn btn-success"
           onClick={exportWinners}
         >
           Export Winners
