@@ -8,8 +8,8 @@
   amount: 100
   minimumIncrease: 5
   maximumIncrease: 20
-  startTime: 2026-04-20T14:00:00+00:00
-  endTime: 2026-05-01T17:00:00+00:00
+  startTime: 2026-04-24T14:00:00+00:00
+  endTime: 2026-05-01T19:00:00+00:00
 
 - id: 1
   primaryImage: grizzlies_mini_hoop
@@ -20,8 +20,8 @@
   amount: 10
   minimumIncrease: 1
   maximumIncrease: 5
-  startTime: 2026-04-20T14:00:00+00:00
-  endTime: 2026-05-01T17:00:00+00:00
+  startTime: 2026-04-24T14:00:00+00:00
+  endTime: 2026-05-01T19:00:00+00:00
 
 - id: 2
   primaryImage: grizzlies_scarf
@@ -32,8 +32,8 @@
   amount: 10
   minimumIncrease: 1
   maximumIncrease: 5
-  startTime: 2026-04-20T14:00:00+00:00
-  endTime: 2026-05-01T17:00:00+00:00
+  startTime: 2026-04-24T14:00:00+00:00
+  endTime: 2026-05-01T19:00:00+00:00
 
 - id: 3
   primaryImage: zach_edey_autograph
@@ -44,8 +44,8 @@
   amount: 10
   minimumIncrease: 1
   maximumIncrease: 5
-  startTime: 2026-04-20T14:00:00+00:00
-  endTime: 2026-05-01T17:00:00+00:00
+  startTime: 2026-04-24T14:00:00+00:00
+  endTime: 2026-05-01T19:00:00+00:00
 
 - id: 4
   primaryImage: santi_aldama_autograph
@@ -56,8 +56,8 @@
   amount: 10
   minimumIncrease: 1
   maximumIncrease: 5
-  startTime: 2026-04-20T14:00:00+00:00
-  endTime: 2026-05-01T17:00:00+00:00
+  startTime: 2026-04-24T14:00:00+00:00
+  endTime: 2026-05-01T19:00:00+00:00
 
 - id: 5
   primaryImage: brandon_clarke_autograph
@@ -68,8 +68,8 @@
   amount: 10
   minimumIncrease: 1
   maximumIncrease: 5
-  startTime: 2026-04-20T14:00:00+00:00
-  endTime: 2026-05-01T17:00:00+00:00
+  startTime: 2026-04-24T14:00:00+00:00
+  endTime: 2026-05-01T19:00:00+00:00
 
 - id: 6
   primaryImage: grind_city_tshirts
@@ -80,8 +80,8 @@
   amount: 30
   minimumIncrease: 2.50
   maximumIncrease: 10
-  startTime: 2026-04-20T14:00:00+00:00
-  endTime: 2026-05-01T17:00:00+00:00
+  startTime: 2026-04-24T14:00:00+00:00
+  endTime: 2026-05-01T19:00:00+00:00
 
 - id: 7
   primaryImage: frost_bake_shop
@@ -93,8 +93,8 @@
   minimumIncrease: 1
   maximumIncrease: 5
   buyItNow: 45
-  startTime: 2026-04-20T14:00:00+00:00
-  endTime: 2026-05-01T17:00:00+00:00
+  startTime: 2026-04-24T14:00:00+00:00
+  endTime: 2026-05-01T19:00:00+00:00
 
 - id: 8
   primaryImage: mempops_gc
@@ -104,8 +104,8 @@
   amount: 15
   minimumIncrease: 1
   maximumIncrease: 5
-  startTime: 2026-04-20T14:00:00+00:00
-  endTime: 2026-05-01T17:00:00+00:00
+  startTime: 2026-04-24T14:00:00+00:00
+  endTime: 2026-05-01T19:00:00+00:00
 
 - id: 9
   primaryImage: botanic_gardens
@@ -116,8 +116,8 @@
   amount: 15
   minimumIncrease: 1
   maximumIncrease: 5
-  startTime: 2026-04-20T14:00:00+00:00
-  endTime: 2026-05-01T17:00:00+00:00
+  startTime: 2026-04-24T14:00:00+00:00
+  endTime: 2026-05-01T19:00:00+00:00
 
 - id: 10
   primaryImage: memphis_pizza_cafe_gc
@@ -129,8 +129,8 @@
   minimumIncrease: 1
   maximumIncrease: 5
   buyItNow: 35
-  startTime: 2026-04-20T14:00:00+00:00
-  endTime: 2026-05-01T17:00:00+00:00
+  startTime: 2026-04-24T14:00:00+00:00
+  endTime: 2026-05-01T19:00:00+00:00
 
 - id: 11
   primaryImage: camp_radio_sr
@@ -142,8 +142,8 @@
   amount: 25
   minimumIncrease: 1
   maximumIncrease: 5
-  startTime: 2026-04-20T14:00:00+00:00
-  endTime: 2026-05-01T17:00:00+00:00
+  startTime: 2026-04-24T14:00:00+00:00
+  endTime: 2026-05-01T19:00:00+00:00
 
 - id: 12
   primaryImage: camp_radio_jr
@@ -155,8 +155,8 @@
   amount: 25
   minimumIncrease: 1
   maximumIncrease: 5
-  startTime: 2026-04-20T14:00:00+00:00
-  endTime: 2026-05-01T17:00:00+00:00
+  startTime: 2026-04-24T14:00:00+00:00
+  endTime: 2026-05-01T19:00:00+00:00
 
 - id: 13
   primaryImage: jojos_coffee_gc
@@ -166,8 +166,8 @@
   amount: 15
   minimumIncrease: 1
   maximumIncrease: 5
-  startTime: 2026-04-20T14:00:00+00:00
-  endTime: 2026-05-01T17:00:00+00:00
+  startTime: 2026-04-24T14:00:00+00:00
+  endTime: 2026-05-01T19:00:00+00:00
 
 - id: 14
   primaryImage: assorted_books_and_light
@@ -177,8 +177,8 @@
   amount: 15
   minimumIncrease: 1
   maximumIncrease: 5
-  startTime: 2026-04-20T14:00:00+00:00
-  endTime: 2026-05-01T17:00:00+00:00
+  startTime: 2026-04-24T14:00:00+00:00
+  endTime: 2026-05-01T19:00:00+00:00
 
 - id: 15
   primaryImage: goulds_bundle
@@ -190,8 +190,8 @@
   amount: 30
   minimumIncrease: 2.50
   maximumIncrease: 10
-  startTime: 2026-04-20T14:00:00+00:00
-  endTime: 2026-05-01T17:00:00+00:00
+  startTime: 2026-04-24T14:00:00+00:00
+  endTime: 2026-05-01T19:00:00+00:00
 
 - id: 16
   primaryImage: chickfila_basket
@@ -202,8 +202,8 @@
   amount: 40
   minimumIncrease: 2.50
   maximumIncrease: 10
-  startTime: 2026-04-20T14:00:00+00:00
-  endTime: 2026-05-01T17:00:00+00:00
+  startTime: 2026-04-24T14:00:00+00:00
+  endTime: 2026-05-01T19:00:00+00:00
 
 - id: 17
   primaryImage: flower
@@ -215,10 +215,132 @@
   amount: 25
   minimumIncrease: 1
   maximumIncrease: 5
-  startTime: 2026-04-20T14:00:00+00:00
-  endTime: 2026-05-01T17:00:00+00:00
+  startTime: 2026-04-24T14:00:00+00:00
+  endTime: 2026-05-01T19:00:00+00:00
 
 - id: 18
+  primaryImage: hattie_bs_gc
+  title: Hattie B's Hot Chicken Gift Cards
+  subtitle: Four $25 gift cards
+  detail: Courtesy of the Hattie B's Fam. $100 total value!
+  secondaryImage: hattie_bs_gc
+  currency: $
+  amount: 25
+  minimumIncrease: 1
+  maximumIncrease: 5
+  startTime: 2026-04-24T14:00:00+00:00
+  endTime: 2026-05-01T19:00:00+00:00
+
+- id: 19
+  primaryImage: cartography_book
+  title: Exploring the World Through Cartography
+  subtitle: Book donation from Kim Potter
+  secondaryImage: cartography_book
+  currency: $
+  amount: 15
+  minimumIncrease: 1
+  maximumIncrease: 5
+  startTime: 2026-04-24T14:00:00+00:00
+  endTime: 2026-05-01T19:00:00+00:00
+
+- id: 20
+  primaryImage: fix_it_grammar
+  title: Fix It! Grammar - Robin Hood
+  subtitle: IEW Student Book 2 - Like new
+  secondaryImage: fix_it_grammar
+  currency: $
+  amount: 10
+  minimumIncrease: 1
+  maximumIncrease: 5
+  startTime: 2026-04-24T14:00:00+00:00
+  endTime: 2026-05-01T19:00:00+00:00
+
+- id: 21
+  primaryImage: iew_teaching_writing
+  title: IEW Teaching Writing - Structure and Style
+  subtitle: Seminar and Practicum Workbook
+  secondaryImage: iew_teaching_writing
+  currency: $
+  amount: 10
+  minimumIncrease: 1
+  maximumIncrease: 5
+  startTime: 2026-04-24T14:00:00+00:00
+  endTime: 2026-05-01T19:00:00+00:00
+
+- id: 22
+  primaryImage: iew_us_history
+  title: IEW U.S. History-Based Writing Lessons
+  subtitle: Cycle 3 Student Book - Like new
+  secondaryImage: iew_us_history
+  currency: $
+  amount: 10
+  minimumIncrease: 1
+  maximumIncrease: 5
+  startTime: 2026-04-24T14:00:00+00:00
+  endTime: 2026-05-01T19:00:00+00:00
+
+- id: 23
+  primaryImage: cha_book_bundle
+  title: CHA Book Bundle
+  subtitle: Seven Newbery & classic children's novels
+  detail: Includes A Gathering of Days, The Door in the Wall, Amos Fortune Free Man, Crispin, The Bronze Bow, Number the Stars, and The Lion, the Witch and the Wardrobe.
+  secondaryImage: cha_book_bundle
+  currency: $
+  amount: 35
+  minimumIncrease: 2.50
+  maximumIncrease: 10
+  startTime: 2026-04-24T14:00:00+00:00
+  endTime: 2026-05-01T19:00:00+00:00
+
+- id: 24
+  primaryImage: math_map
+  title: The Math Map
+  subtitle: Like new
+  secondaryImage: math_map
+  currency: $
+  amount: 20
+  minimumIncrease: 1
+  maximumIncrease: 5
+  startTime: 2026-04-24T14:00:00+00:00
+  endTime: 2026-05-01T19:00:00+00:00
+
+- id: 25
+  primaryImage: words_aptly_spoken
+  title: Words Aptly Spoken - Volume A
+  subtitle: Classical Literature for Children
+  secondaryImage: words_aptly_spoken
+  currency: $
+  amount: 5
+  minimumIncrease: 1
+  maximumIncrease: 5
+  startTime: 2026-04-24T14:00:00+00:00
+  endTime: 2026-05-01T19:00:00+00:00
+
+- id: 26
+  primaryImage: lost_tools_teacher
+  title: The Lost Tools of Writing - Teacher Guide
+  subtitle: Level One
+  secondaryImage: lost_tools_teacher
+  currency: $
+  amount: 15
+  minimumIncrease: 1
+  maximumIncrease: 5
+  startTime: 2026-04-24T14:00:00+00:00
+  endTime: 2026-05-01T19:00:00+00:00
+
+- id: 27
+  primaryImage: lost_tools_student
+  title: The Lost Tools of Writing - Student Workbook
+  subtitle: Level One - Like new
+  secondaryImage: lost_tools_student
+  currency: $
+  amount: 15
+  minimumIncrease: 1
+  maximumIncrease: 5
+  startTime: 2026-04-24T14:00:00+00:00
+  endTime: 2026-05-01T19:00:00+00:00
+
+- id: 28
   type: donation
   primaryImage: Venmo
   secondaryImage: Venmo
@@ -235,4 +357,4 @@
     - 50
     - 100
   startTime: 2026-04-20T14:00:00+00:00
-  endTime: 2026-05-01T17:00:00+00:00
+  endTime: 2026-05-01T19:00:00+00:00
